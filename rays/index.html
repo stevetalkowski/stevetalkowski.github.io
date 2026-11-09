@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>RAYS: A Pocket Path Tracer</title>
-<meta name="description" content="RAYS is a real path tracer for iPhone. Import a model, light it with an HDRI, hit Render, and watch a photoreal image come together in seconds. Designed first for iPhone Duo.">
+<meta name="description" content="RAYS is a real path tracer designed for iPhone Duo. Import a model, light it with an HDRI, hit Render, and watch a photoreal image come together in seconds.">
 <meta property="og:title" content="RAYS: A Pocket Path Tracer">
-<meta property="og:description" content="Real path-traced light, right on your iPhone. Designed first for iPhone Duo.">
+<meta property="og:description" content="Real path-traced light, designed for iPhone Duo.">
 <meta property="og:image" content="https://stevetalkowski.github.io/rays/img/crew.jpg">
 <meta name="theme-color" content="#05070c">
 <link rel="icon" href="img/icon.png">
@@ -33,7 +33,7 @@
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
-  img { display: block; max-width: 100%; height: auto; }
+  img, video { display: block; max-width: 100%; height: auto; }
   a { color: var(--blue); text-decoration: none; }
   a:hover { text-decoration: underline; }
   h1, h2, h3 { font-family: var(--font); font-weight: 700; letter-spacing: -0.02em; margin: 0; }
@@ -43,6 +43,7 @@
     font-size: 13px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase;
     color: var(--blue); margin: 0 0 14px;
   }
+  .grad { background: linear-gradient(90deg, var(--orange), #ffc04d); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
   /* ---------- top bar ---------- */
   .bar {
@@ -81,6 +82,7 @@
     pointer-events: none;
   }
   .hero-copy { position: relative; z-index: 2; padding-bottom: 9vh; }
+  .hero .eyebrow { color: #fff; opacity: 0.92; margin-bottom: 8px; }
   .hero h1 { font-size: clamp(72px, 14vw, 180px); line-height: 0.9; letter-spacing: -0.03em; text-shadow: 0 6px 40px rgba(0,0,0,0.35); }
   .hero .tag { font-size: clamp(22px, 3vw, 34px); font-weight: 700; margin: 10px 0 18px; }
   .hero .lede { max-width: 560px; color: #dfe6f3; font-size: 19px; margin: 0 0 28px; }
@@ -98,11 +100,31 @@
   /* ---------- statement ---------- */
   .statement { padding: 120px 0 60px; text-align: center; }
   .statement p { font-size: clamp(26px, 3.6vw, 44px); line-height: 1.25; font-weight: 700; max-width: 980px; margin: 0 auto; letter-spacing: -0.015em; }
-  .statement .dim { color: var(--faint); }
-  .statement .hl { background: linear-gradient(90deg, var(--orange), #ffc04d); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  /* ---------- Apple device frames (used as supplied: never tilted, cropped, shadowed or animated) ---------- */
+  .device { margin: 0; }
+  .device img, .device video { width: 100%; }
+  .screen { position: relative; }
+  /* The open Duo frame's screen opening: 2853 × 2007 at (120, 120) in a 3093 × 2247 image. */
+  .screen video { position: absolute; left: 3.880%; top: 5.340%; width: 92.240%; height: 89.319%; object-fit: cover; background: #000; }
+  .screen img.bezel { position: relative; pointer-events: none; }
+
+  /* ---------- designed for iPhone Duo ---------- */
+  .duo-sec { padding: 110px 0 120px; text-align: center; border-top: 1px solid var(--line); position: relative; overflow: hidden; isolation: isolate; }
+  .duo-sec h2 { font-size: clamp(44px, 6.4vw, 92px); line-height: 0.98; margin-bottom: 18px; }
+  .duo-sec p.sub { color: var(--muted); max-width: 680px; margin: 0 auto 64px; }
+  .fold-row { display: grid; grid-template-columns: 2.25fr 1fr; gap: 48px; align-items: end; max-width: 1080px; margin: 0 auto; }
+  .fold-row figcaption, .shots figcaption { font-size: 14px; color: var(--faint); margin-top: 14px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
+
+  .dod { margin-top: 140px; }
+  .dod h2 { font-size: clamp(54px, 9vw, 130px); letter-spacing: -0.035em; }
+  .dod .video { max-width: 980px; margin: 0 auto; }
+  .hands { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 72px 0 0; }
+  .hands img { border-radius: 18px; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+  .shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 64px; }
 
   /* ---------- the Cornell piece ---------- */
-  .piece { padding: 60px 0 120px; }
+  .piece { padding: 110px 0 120px; border-top: 1px solid var(--line); }
   .piece-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 64px; align-items: center; }
   .frame-art {
     position: relative; border-radius: 6px; overflow: hidden;
@@ -122,30 +144,17 @@
     backdrop-filter: blur(6px);
   }
   .hud b { color: #7cf08a; font-weight: 400; }
-  .piece h2 { font-size: clamp(30px, 3.4vw, 44px); line-height: 1.12; margin-bottom: 18px; }
+  .piece h2 { font-size: clamp(36px, 4.4vw, 58px); line-height: 1.05; margin-bottom: 18px; }
   .piece .title { font-style: italic; color: var(--fg); }
   .piece p { color: var(--muted); }
   .credit { font-size: 14px; color: var(--faint); margin-top: 20px; }
   .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; padding: 0; list-style: none; }
   .pills li { font-size: 14px; padding: 7px 13px; border-radius: 999px; border: 1px solid var(--line); color: #c9d1e0; background: var(--bg2); }
 
-  /* ---------- device frames ---------- */
-  .duo {
-    position: relative; border-radius: 26px; padding: 9px;
-    background: linear-gradient(145deg, #3a3f4a, #15181e 45%, #2b2f38);
-    box-shadow: 0 50px 100px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(255,255,255,0.08);
-  }
-  .duo img { border-radius: 18px; width: 100%; }
-  .duo::after {   /* glass sheen */
-    content: ""; position: absolute; inset: 9px; border-radius: 18px; pointer-events: none;
-    background: linear-gradient(115deg, rgba(255,255,255,0.10), rgba(255,255,255,0) 35%);
-  }
-  .duo.folded { border-radius: 30px; }
-
   /* ---------- feature chapters ---------- */
   .chapter { padding: 110px 0; border-top: 1px solid var(--line); position: relative; overflow: hidden; isolation: isolate; }
-  .chapter-grid { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 72px; align-items: center; }
-  .chapter.flip .chapter-grid { grid-template-columns: 1.15fr 0.85fr; }
+  .chapter-grid { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 64px; align-items: center; }
+  .chapter.flip .chapter-grid { grid-template-columns: 1.2fr 0.8fr; }
   .chapter.flip .copy { order: 2; }
   .chapter h2 { font-size: clamp(40px, 5.2vw, 72px); line-height: 0.98; margin-bottom: 22px; }
   .chapter .num { font-size: 15px; color: var(--faint); font-weight: 700; letter-spacing: 0.2em; }
@@ -157,23 +166,13 @@
     background: radial-gradient(circle at 35% 35%, #fff, var(--accent, var(--blue)) 55%, #000 120%);
   }
   .chapter li strong { color: var(--fg); }
-  .stack { position: relative; }
-  .stack .back { width: 78%; margin-left: auto; opacity: 0.95; }
-  .stack .front { width: 78%; margin-top: -32%; position: relative; }
-  .chapter.import  { --accent: var(--blue); }
-  .chapter.light   { --accent: #ffd34d; }
-  .chapter.render  { --accent: var(--orange); }
-  .chapter.preview { --accent: #b57bff; }
-  .chapter.scenes  { --accent: var(--green); }
-  .glow { position: absolute; width: 520px; height: 520px; border-radius: 50%; filter: blur(120px); opacity: 0.22; pointer-events: none; z-index: -1; }
-
-  /* ---------- folded or open ---------- */
-  .fold { padding: 120px 0; text-align: center; border-top: 1px solid var(--line); overflow: hidden; }
-  .fold h2 { font-size: clamp(40px, 5.6vw, 76px); line-height: 1; margin-bottom: 18px; }
-  .fold p.sub { color: var(--muted); max-width: 640px; margin: 0 auto 64px; }
-  .fold-row { display: flex; justify-content: center; align-items: flex-end; gap: 36px; }
-  .fold-row .duo.open { width: min(640px, 58%); }
-  .fold-row .duo.folded { width: min(250px, 22%); }
+  .chapter.import  { --accent: #4f9bff; }
+  .chapter.light   { --accent: #ffd84d; }
+  .chapter.render  { --accent: #ff9a2e; }
+  .chapter.preview { --accent: #c08cff; }
+  .chapter.scenes  { --accent: #6fdc55; }
+  .glow { position: absolute; width: 680px; height: 680px; border-radius: 50%; filter: blur(130px); opacity: 0.5; pointer-events: none; z-index: -1; background: var(--accent); }
+  .duo-sec .glow { opacity: 0.38; }
 
   /* ---------- crew band ---------- */
   .crew { position: relative; padding: 0; }
@@ -188,16 +187,16 @@
   /* ---------- closing ---------- */
   .closing { padding: 110px 0 60px; text-align: center; }
   .closing img.icon { width: 112px; height: 112px; border-radius: 25px; margin: 0 auto 26px; box-shadow: 0 20px 60px rgba(58,135,254,0.35); }
-  .closing h2 { font-size: clamp(36px, 4.6vw, 60px); margin-bottom: 14px; }
-  .closing p { color: var(--muted); max-width: 620px; margin: 0 auto 30px; }
+  .closing h2 { font-size: clamp(36px, 4.6vw, 60px); margin-bottom: 30px; }
   .closing .cta { justify-content: center; }
   .req { margin: 56px auto 0; max-width: 720px; padding: 22px 26px; border-radius: 18px; background: var(--bg2); border: 1px solid var(--line); text-align: left; color: var(--muted); font-size: 16px; }
   .req strong { color: var(--fg); }
   footer { border-top: 1px solid var(--line); padding: 34px 0 46px; color: var(--faint); font-size: 14px; }
-  footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
+  footer .links { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
   footer a { color: var(--muted); margin-left: 20px; }
+  footer .legal { margin: 22px 0 0; max-width: 900px; font-size: 13px; line-height: 1.6; }
 
-  /* ---------- reveal on scroll ---------- */
+  /* ---------- reveal on scroll (text only; the device images stay put) ---------- */
   .reveal { opacity: 0; transform: translateY(36px); transition: opacity .9s ease, transform .9s cubic-bezier(.2,.7,.2,1); }
   .reveal.in { opacity: 1; transform: none; }
   @media (prefers-reduced-motion: reduce) {
@@ -214,14 +213,13 @@
     .bar nav { display: none; }
     .piece-grid, .chapter-grid, .chapter.flip .chapter-grid { grid-template-columns: 1fr; gap: 40px; }
     .chapter.flip .copy { order: 0; }
-    .chapter, .fold, .piece { padding: 80px 0; }
+    .chapter, .duo-sec, .piece { padding: 80px 0; }
     .statement { padding: 80px 0 30px; }
-    .fold-row { gap: 14px; }
-    .fold-row .duo.open { width: 64%; }
-    .fold-row .duo.folded { width: 30%; }
-    .duo { border-radius: 16px; padding: 5px; }
-    .duo img { border-radius: 12px; }
-    .duo::after { inset: 5px; border-radius: 12px; }
+    .fold-row { gap: 16px; }
+    .dod { margin-top: 90px; }
+    .hands { grid-template-columns: 1fr; gap: 16px; margin-top: 40px; }
+    .shots { grid-template-columns: 1fr; gap: 24px; margin-top: 40px; }
+    .glow { width: 420px; height: 420px; filter: blur(100px); }
     footer a { margin: 0 20px 0 0; }
   }
 </style>
@@ -231,6 +229,7 @@
 <header class="bar" id="bar">
   <a class="brand" href="#top"><img src="img/icon.png" alt="">RAYS</a>
   <nav>
+    <a href="#duo">iPhone Duo</a>
     <a href="#import">Import</a>
     <a href="#light">Light</a>
     <a href="#render">Render</a>
@@ -241,6 +240,7 @@
 
 <section class="hero" id="top">
   <div class="wrap hero-copy">
+    <p class="eyebrow">Designed for iPhone Duo</p>
     <h1>RAYS</h1>
     <p class="tag">A Pocket Path Tracer</p>
     <p class="lede">Bring your 3D models to life with real path-traced light, right on your iPhone. Open USDZ, glTF or OBJ, light it with an HDRI, and render a photoreal image in seconds.</p>
@@ -250,14 +250,55 @@
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.7-3.18-1.73-1.35-.14-2.64.8-3.33.8-.69 0-1.74-.78-2.87-.76-1.47.02-2.83.86-3.59 2.18-1.53 2.66-.39 6.6 1.1 8.75.73 1.05 1.6 2.24 2.73 2.2 1.1-.05 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.07 2.65-2.13.84-1.22 1.18-2.4 1.2-2.46-.03-.01-2.27-.87-2.29-3.47zM14.2 6.13c.6-.73 1.01-1.75.9-2.76-.87.04-1.92.58-2.54 1.31-.56.64-1.05 1.68-.92 2.67.97.08 1.96-.49 2.56-1.22z"/></svg>
         Coming soon to the App Store
       </a>
-      <span class="price">$9.99 &middot; no subscription, no ads, no tracking</span>
+      <span class="price">$9.99 &middot; no subscription</span>
     </div>
   </div>
 </section>
 
 <section class="statement">
   <div class="wrap">
-    <p class="reveal">The same kind of light simulation used by <span class="dim">film and product-visualization renderers,</span> running on your iPhone's <span class="hl">hardware ray tracing.</span></p>
+    <p class="reveal">The same kind of light simulation used by <span class="grad">film and product-visualization renderers,</span> running on your iPhone's <span class="grad">hardware ray tracing.</span></p>
+  </div>
+</section>
+
+<section class="duo-sec" id="duo" style="--accent:#4f9bff">
+  <div class="glow" style="left:50%; top:220px; transform:translateX(-50%)"></div>
+  <div class="wrap">
+    <p class="eyebrow reveal">Designed for iPhone Duo</p>
+    <h2 class="reveal">Folded or open.</h2>
+    <p class="sub reveal">RAYS was designed for iPhone Duo from the start. Open it up for a wide canvas with the panels beside your render; fold it closed and the whole studio is still in one hand. It's at home on every iPhone with hardware ray tracing, too.</p>
+    <div class="fold-row">
+      <figure class="device">
+        <img src="img/open.webp" alt="RAYS on the open iPhone Duo: three traffic cones path traced on a reflective floor." width="1800" height="1308">
+        <figcaption>Open</figcaption>
+      </figure>
+      <figure class="device">
+        <img src="img/closed.webp" alt="RAYS on the closed iPhone Duo's outer display: the same traffic cones." width="900" height="1255">
+        <figcaption>Closed</figcaption>
+      </figure>
+    </div>
+
+    <div class="dod">
+      <p class="eyebrow reveal">iPhone Duo, rendered on iPhone Duo</p>
+      <h2 class="reveal"><span class="grad">Duo on a Duo!</span></h2>
+      <p class="sub reveal">Apple's own iPhone Duo model, opened in RAYS on an iPhone Duo. Switch its Color and Pose variants, light it with an HDRI and a shadow catcher, and render it, all in your hand.</p>
+      <div class="video">
+        <div class="screen">
+          <video src="img/duo-on-duo.mp4" poster="img/duo-on-duo.jpg" autoplay muted loop playsinline preload="metadata"
+                 aria-label="Screen recording: the iPhone Duo model in RAYS, switching colors and poses, lit by an HDRI with a shadow catcher."></video>
+          <img class="bezel" src="img/bezel-open.webp" alt="" width="1800" height="1308">
+        </div>
+      </div>
+      <div class="hands">
+        <img src="img/hand-night.jpg" alt="An iPhone Duo held in hand, showing RAYS with the Night Sky Duo model closed." loading="lazy" width="2000" height="1125">
+        <img src="img/hand-white.jpg" alt="An iPhone Duo held in hand, showing RAYS with the Star White Duo model open in landscape." loading="lazy" width="2000" height="1125">
+      </div>
+      <div class="shots">
+        <figure class="device"><img src="img/duo-white-open.webp" alt="RAYS: the Star White iPhone Duo model, open." loading="lazy" width="1800" height="1308"><figcaption>Star White, open</figcaption></figure>
+        <figure class="device"><img src="img/duo-white-landscape.webp" alt="RAYS: the Duo model in its Landscape pose, its screen facing the camera." loading="lazy" width="1800" height="1308"><figcaption>Landscape pose</figcaption></figure>
+        <figure class="device"><img src="img/duo-white-closed.webp" alt="RAYS: the Star White iPhone Duo model, closed." loading="lazy" width="1800" height="1308"><figcaption>Star White, closed</figcaption></figure>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -270,10 +311,10 @@
     </figure>
     <div class="reveal">
       <p class="eyebrow">Rendered by RAYS</p>
-      <h2><span class="title">Sketchbot in a Cornell box, with a mirror ball and a glass ball under one overhead area light.</span></h2>
-      <p>Hit Render and the image comes together in front of you: soft shadows, reflections, glass and the colour bounce from every wall, refining with every sample. It's a progressive path tracer: one full light path for every pixel, every frame, until the noise is gone.</p>
+      <h2><span class="title">Sketchbot Cornell Box</span></h2>
+      <p>Hit Render and the image comes together in front of you: soft shadows, reflections, glass and the color bounce from every wall, refining with every sample. It's a progressive path tracer: one full light path for every pixel, every frame, until the noise is gone.</p>
       <ul class="pills">
-        <li>Soft shadows</li><li>Mirror reflections</li><li>Refraction</li><li>Colour bleed</li><li>Denoiser</li>
+        <li>Soft shadows</li><li>Mirror reflections</li><li>Refraction</li><li>Color bleed</li><li>Denoiser</li>
       </ul>
       <p class="credit">The Cornell box: computer graphics' most famous test scene, built from Cornell's published measurements.</p>
     </div>
@@ -281,7 +322,7 @@
 </section>
 
 <section class="chapter import" id="import">
-  <div class="glow" style="background:var(--blue); left:-180px; top:80px"></div>
+  <div class="glow" style="left:-200px; top:60px"></div>
   <div class="wrap chapter-grid">
     <div class="copy reveal">
       <p class="num">01</p>
@@ -292,14 +333,12 @@
         <li><strong>Several models in one scene</strong>: move, turn and scale them with an on-screen gizmo.</li>
       </ul>
     </div>
-    <div class="reveal">
-      <div class="duo"><img src="img/outliner.jpg" alt="RAYS on iPhone Duo: the Scene panel listing Sketchbot's hierarchy, cameras and materials beside the rendered character." loading="lazy" width="1600" height="1125"></div>
-    </div>
+    <figure class="device"><img src="img/import.webp" alt="RAYS on iPhone Duo: the Scene panel listing Sketchbot's hierarchy, cameras and materials beside the rendered character." loading="lazy" width="1800" height="1308"></figure>
   </div>
 </section>
 
 <section class="chapter light flip" id="light">
-  <div class="glow" style="background:#ffd34d; right:-160px; top:120px"></div>
+  <div class="glow" style="right:-200px; top:100px"></div>
   <div class="wrap chapter-grid">
     <div class="copy reveal">
       <p class="num">02</p>
@@ -308,18 +347,15 @@
         <li><strong>Three studio HDRIs</strong> light your model with real image-based light. Turn them, set their exposure, or show them behind the model.</li>
         <li><strong>Sun, bulb, spot and area lights</strong>, placed and aimed right in the view.</li>
         <li><strong>Shadow catcher</strong>: an invisible floor that catches soft shadows and reflections. <strong>Ground projection</strong> lays the HDRI's floor under your model.</li>
-        <li><strong>Backdrop colours with Bounce light</strong>: the set colour lights your model back, like a coloured studio cyc.</li>
+        <li><strong>Backdrop colors with Bounce light</strong>: the set color lights your model back, like a colored studio cyc.</li>
       </ul>
     </div>
-    <div class="stack reveal">
-      <div class="duo back"><img src="img/hdri.jpg" alt="The HDRI menu: Show as Background, Illuminate Scene, Shadow Catcher and Ground Projection, over Sketchbot in a sunlit loft." loading="lazy" width="1600" height="1125"></div>
-      <div class="duo front"><img src="img/area-light.jpg" alt="An area light selected above Sketchbot, with its size shown and the light's settings panel open." loading="lazy" width="1600" height="1125"></div>
-    </div>
+    <figure class="device"><img src="img/light.webp" alt="An area light selected above Sketchbot on a blue backdrop, with its size shown and the light's settings panel open." loading="lazy" width="1800" height="1308"></figure>
   </div>
 </section>
 
 <section class="chapter render" id="render">
-  <div class="glow" style="background:var(--orange); left:-160px; top:60px"></div>
+  <div class="glow" style="left:-200px; top:60px"></div>
   <div class="wrap chapter-grid">
     <div class="copy reveal">
       <p class="num">03</p>
@@ -331,34 +367,28 @@
         <li><strong>Save to Photos</strong> as PNG or HDR photos, plus EXR for compositing.</li>
       </ul>
     </div>
-    <div class="stack reveal">
-      <div class="duo back"><img src="img/spheres.jpg" alt="Eight material spheres (car paint, chrome, gold, glass, copper and more) path traced on a polished concrete floor." loading="lazy" width="1600" height="1125"></div>
-      <div class="duo front"><img src="img/settings.jpg" alt="Render settings and the HUD: 128 of 128 samples done in 11.5 seconds, with Samples, Bounces and Resolution controls." loading="lazy" width="1600" height="1125"></div>
-    </div>
+    <figure class="device"><img src="img/render.webp" alt="Render settings and the HUD over the material spheres: 128 of 128 samples done in 11.5 seconds, with Samples, Bounces, Resolution, Denoise and Firefly clamp." loading="lazy" width="1800" height="1308"></figure>
   </div>
 </section>
 
 <section class="chapter preview flip" id="preview">
-  <div class="glow" style="background:#b57bff; right:-160px; top:100px"></div>
+  <div class="glow" style="right:-200px; top:80px"></div>
   <div class="wrap chapter-grid">
     <div class="copy reveal">
       <p class="num">04</p>
       <h2>Preview</h2>
       <ul>
         <li><strong>A fast real-time Preview</strong> for framing and arranging.</li>
-        <li><strong>Preview Effects</strong>: ambient occlusion, curvature, depth of field, bloom, tone mapping (Neutral, AgX, ACES), colour balance, vignette, grain and more.</li>
+        <li><strong>Preview Effects</strong>: ambient occlusion, curvature, depth of field, bloom, tone mapping (Neutral, AgX, ACES), color balance, vignette, grain and more.</li>
         <li><strong>Saved cameras</strong> with real focal lengths, including a Default camera to get back to the opening view.</li>
       </ul>
     </div>
-    <div class="stack reveal">
-      <div class="duo back"><img src="img/camera.jpg" alt="The Camera panel with focal length presets from 24 to 135 mm and a depth of field switch." loading="lazy" width="1600" height="1125"></div>
-      <div class="duo front"><img src="img/effects.jpg" alt="Preview Effects: ambient occlusion, scanlines and grain on Sketchbot, with the effects panel open." loading="lazy" width="1600" height="1125"></div>
-    </div>
+    <figure class="device"><img src="img/preview.webp" alt="Preview Effects on Sketchbot: ambient occlusion, scanlines and grain, with the effects panel open." loading="lazy" width="1800" height="1308"></figure>
   </div>
 </section>
 
 <section class="chapter scenes" id="scenes">
-  <div class="glow" style="background:var(--green); left:-160px; top:80px"></div>
+  <div class="glow" style="left:-200px; top:60px"></div>
   <div class="wrap chapter-grid">
     <div class="copy reveal">
       <p class="num">05</p>
@@ -368,22 +398,7 @@
         <li><strong>Sample scenes to start from</strong>: Sketchbot, Material Spheres and two classic Cornell boxes.</li>
       </ul>
     </div>
-    <div class="reveal">
-      <div class="duo"><img src="img/cornell-1985.jpg" alt="The classic 1985 Cornell box sample, path traced in RAYS: a tall and a short block between red and green walls." loading="lazy" width="1600" height="1125"></div>
-    </div>
-  </div>
-</section>
-
-<section class="fold">
-  <div class="wrap">
-    <p class="eyebrow reveal">Designed first for iPhone Duo</p>
-    <h2 class="reveal">Folded or open.</h2>
-    <p class="sub reveal">Open it up for a wide canvas with the panels beside your render. Fold it closed and the whole studio is still in one hand. And at home on every iPhone with hardware ray tracing.</p>
-    <div class="fold-row reveal">
-      <div class="duo folded"><img src="img/folded-effects.jpg" alt="RAYS on the folded iPhone Duo's outer screen, Preview Effects on Sketchbot." loading="lazy" width="756" height="1100"></div>
-      <div class="duo open"><img src="img/hdri.jpg" alt="RAYS on the open iPhone Duo." loading="lazy" width="1600" height="1125"></div>
-      <div class="duo folded"><img src="img/folded-hdri.jpg" alt="RAYS on the folded iPhone Duo's outer screen, Sketchbot lit by an HDRI with depth of field." loading="lazy" width="756" height="1100"></div>
-    </div>
+    <figure class="device"><img src="img/scenes.webp" alt="The classic 1985 Cornell box sample, path traced in RAYS: a tall and a short block between red and green walls." loading="lazy" width="1800" height="1308"></figure>
   </div>
 </section>
 
@@ -395,8 +410,7 @@
 <section class="closing" id="get">
   <div class="wrap">
     <img class="icon reveal" src="img/icon.png" alt="RAYS app icon">
-    <h2 class="reveal">Your pocket render farm.</h2>
-    <p class="reveal">One price, up front. No account, no subscription, no ads. Nothing leaves your iPhone unless you send it.</p>
+    <h2 class="reveal">Your Pocket Renderer.</h2>
     <div class="cta reveal">
       <a class="btn" href="#get">Coming soon to the App Store</a>
       <a class="btn ghost" href="https://stevetalkowski.github.io/rays-support/">Support</a>
@@ -409,12 +423,15 @@
 
 <footer>
   <div class="wrap">
-    <span>&copy; 2026 Sketchbot Studios, Inc.</span>
-    <span>
-      <a href="https://stevetalkowski.github.io/rays-support/">Support</a>
-      <a href="https://stevetalkowski.github.io/rays-support/privacy.html">Privacy</a>
-      <a href="mailto:steve@sketchbot.tv">Contact</a>
-    </span>
+    <div class="links">
+      <span>&copy; 2026 Sketchbot Studios, Inc., Los Angeles, CA</span>
+      <span>
+        <a href="https://stevetalkowski.github.io/rays-support/">Support</a>
+        <a href="https://stevetalkowski.github.io/rays-support/privacy.html">Privacy</a>
+        <a href="mailto:steve@sketchbot.tv">Contact</a>
+      </span>
+    </div>
+    <p class="legal">&copy; 2026 Sketchbot Studios, Inc., Los Angeles, CA. RAYS, Sketchbot and all characters are original works. Screenshots are captured from current builds; features may change before release. iPhone, iPhone Duo, App Store, AirDrop, Quick Look and Photos are trademarks of Apple Inc., registered in the U.S. and other countries and regions.</p>
   </div>
 </footer>
 
@@ -426,11 +443,14 @@
 
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // Fade sections in as they arrive.
+  // Fade the text in as it arrives (device images stay still).
   const io = new IntersectionObserver(es => es.forEach(e => {
     if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
   }), { threshold: 0.15 });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // With reduced motion the Duo video waits for a tap instead of playing itself.
+  if (reduce) document.querySelectorAll('video[autoplay]').forEach(v => { v.removeAttribute('autoplay'); v.pause(); v.controls = true; });
 
   // The Cornell piece "renders" when it scrolls into view: noise falls off as 1/sqrt(samples),
   // like a real progressive render, and the HUD counts up to 128.
