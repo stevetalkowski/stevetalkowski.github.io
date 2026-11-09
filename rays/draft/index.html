@@ -138,7 +138,7 @@
   .dod .video { max-width: 980px; margin: 0 auto; }
   .hands { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 72px 0 0; }
   .hands img { border-radius: 18px; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
-  .shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 64px; }
+  .hands.one { grid-template-columns: minmax(0, 560px); justify-content: center; }
 
   /* ---------- the Cornell piece ---------- */
   .piece { padding: 110px 0 120px; border-top: 1px solid var(--line); }
@@ -277,7 +277,7 @@
     .fold-row { gap: 16px; }
     .dod { margin-top: 90px; }
     .hands { grid-template-columns: 1fr; gap: 16px; margin-top: 40px; }
-    .shots { grid-template-columns: 1fr; gap: 24px; margin-top: 40px; }
+    .hands.one { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -343,7 +343,7 @@
     <div class="dod">
       <p class="eyebrow reveal">iPhone Duo, rendered on iPhone Duo</p>
       <h2 class="reveal"><span class="grad">Duo, on a Duo!</span></h2>
-      <p class="sub reveal">Apple's own iPhone Duo USDZ <a href=\"https://www.apple.com/105/media/us/iphone-duo/2026/9305e4b9-72d9-4c05-9381-b572adadd5e5/ar/iPhone_Duo_e-sim_Star-White_Variant.usdz\">model</a>, opened in RAYS on an iPhone Duo. Switch its Color and Pose variants, light it with an HDRI and a shadow catcher, and render it, all in your hand.</p>
+      <p class="sub reveal">Apple's own iPhone Duo USDZ <a href="https://www.apple.com/105/media/us/iphone-duo/2026/9305e4b9-72d9-4c05-9381-b572adadd5e5/ar/iPhone_Duo_e-sim_Star-White_Variant.usdz">model</a>, opened in RAYS on an iPhone Duo. Switch its Color and Pose variants, light it with an HDRI and a shadow catcher, and render it, all in your hand.</p>
       <div class="video">
         <div class="screen">
           <video src="../img/duo-on-duo.mp4" poster="../img/duo-on-duo.jpg" autoplay muted loop playsinline preload="metadata"
@@ -351,14 +351,8 @@
           <img class="bezel" src="../img/bezel-open.webp" alt="" width="1800" height="1308">
         </div>
       </div>
-      <div class="hands">
+      <div class="hands one">
         <img src="../img/hand-night.jpg" alt="An iPhone Duo held in hand, showing RAYS with the Night Sky Duo model closed." loading="lazy" width="2000" height="1125">
-        <img src="../img/hand-white.jpg" alt="An iPhone Duo held in hand, showing RAYS with the Star White Duo model open in landscape." loading="lazy" width="2000" height="1125">
-      </div>
-      <div class="shots">
-        <figure class="device"><img src="../img/duo-white-open.webp" alt="RAYS: the Star White iPhone Duo model, open." loading="lazy" width="1800" height="1308"><figcaption>Star White, open</figcaption></figure>
-        <figure class="device"><img src="../img/duo-white-landscape.webp" alt="RAYS: the Duo model in its Landscape pose, its screen facing the camera." loading="lazy" width="1800" height="1308"><figcaption>Landscape pose</figcaption></figure>
-        <figure class="device"><img src="../img/duo-white-closed.webp" alt="RAYS: the Star White iPhone Duo model, closed." loading="lazy" width="1800" height="1308"><figcaption>Star White, closed</figcaption></figure>
       </div>
     </div>
   </div>
