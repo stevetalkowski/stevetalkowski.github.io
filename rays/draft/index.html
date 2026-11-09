@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RAYS: A Pocket Path Tracer (draft)</title>
+<!-- A draft beside the live page, for comparison: kept out of search engines. -->
+<meta name="robots" content="noindex">
+<meta name="description" content="RAYS is a real path tracer designed for iPhone Duo, by Sketchbot Studios.">
+<meta name="theme-color" content="#0d0d0e">
+<link rel="icon" href="../img/icon.png">
+<link rel="apple-touch-icon" href="../img/icon.png">
+<style>
+  /* Draft 2026-11-09: an artist's portfolio rather than a startup launch page. Regular-weight
+     Arial, sentence case, no gradient text, no glows, no scroll animation; the renders lead, with
+     captions like a reel's credits. */
+  :root {
+    --bg: #0d0d0e;
+    --panel: #151517;
+    --fg: #f2f1ee;
+    --muted: #a3a29d;
+    --faint: #6c6b67;
+    --line: rgba(255,255,255,0.1);
+    --orange: #f7931e;   /* Sketchbot orange */
+    --blue: #4f9bff;
+    --font: Arial, "Helvetica Neue", Helvetica, sans-serif;
+    --mono: Menlo, ui-monospace, "SF Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 18px/1.6 var(--font); -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  }
+  img, video { display: block; max-width: 100%; height: auto; }
+  a { color: var(--fg); text-decoration: underline; text-decoration-color: rgba(242,241,238,0.35); text-underline-offset: 3px; }
+  a:hover { text-decoration-color: var(--orange); }
+  h1, h2, h3 { font-weight: 400; letter-spacing: -0.01em; margin: 0; }
+  p { margin: 0 0 1em; }
+  figure { margin: 0; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+  .narrow { max-width: 760px; }
+  .cap { font: 12.5px/1.5 var(--mono); color: var(--faint); margin-top: 12px; letter-spacing: 0.01em; }
+  .cap b { color: var(--muted); font-weight: 400; }
+
+  /* ---------- top bar ---------- */
+  .bar { display: flex; align-items: center; justify-content: space-between; padding: 18px 32px; position: absolute; inset: 0 0 auto 0; z-index: 5; }
+  .bar .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-size: 17px; }
+  .bar .brand img { width: 28px; height: 28px; border-radius: 7px; }
+  .bar .by { font-size: 14px; color: rgba(242,241,238,0.8); }
+  .bar .by a { color: inherit; }
+
+  /* ---------- opening image ---------- */
+  .open-img { position: relative; height: 92vh; height: 92svh; min-height: 560px; background: #1d4fae url(../img/hero.jpg) center 30% / cover no-repeat; }
+  .open-img::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(13,13,14,0.92), rgba(13,13,14,0.15) 45%, rgba(13,13,14,0.35)); }
+  .open-copy { position: absolute; left: 0; right: 0; bottom: 56px; z-index: 2; }
+  .open-copy h1 { font-size: clamp(64px, 10vw, 128px); line-height: 0.95; letter-spacing: -0.02em; }
+  .open-copy .sub { font-size: clamp(20px, 2.2vw, 26px); margin: 14px 0 26px; color: #e9e7e2; }
+  .buy { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; font-size: 15px; color: #d6d4cf; }
+  .btn { display: inline-flex; align-items: center; gap: 9px; padding: 11px 20px; border: 1px solid rgba(242,241,238,0.6); border-radius: 999px; text-decoration: none; font-size: 15px; }
+  .btn:hover { background: var(--fg); color: var(--bg); }
+  .btn svg { width: 17px; height: 17px; }
+  .open-img .cap { position: absolute; right: 32px; bottom: 22px; z-index: 2; margin: 0; color: rgba(242,241,238,0.6); }
+
+  /* ---------- statement + maker's note ---------- */
+  .statement { padding: 120px 0 40px; }
+  .statement p { font-size: clamp(26px, 3vw, 38px); line-height: 1.3; letter-spacing: -0.01em; }
+  .maker { padding: 30px 0 120px; }
+  .note { display: grid; grid-template-columns: 96px 1fr; gap: 28px; align-items: start; padding: 32px; background: var(--panel); border-radius: 22px; }
+  .note img { width: 96px; height: 96px; border-radius: 22px; }
+  .note p { font-size: 19px; color: #dedcd7; }
+  .note .sig { font-size: 15px; color: var(--muted); margin: 0; }
+
+  /* ---------- sections ---------- */
+  section.block { padding: 110px 0; border-top: 1px solid var(--line); }
+  .head { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: end; margin-bottom: 56px; }
+  .head h2 { font-size: clamp(38px, 4.6vw, 60px); line-height: 1.04; }
+  .head p { color: var(--muted); margin: 0; }
+
+  /* The Cornell piece: big, with its render coming in */
+  .piece { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 56px; align-items: end; }
+  .frame-art { position: relative; overflow: hidden; border-radius: 4px; aspect-ratio: 1 / 1; background: #111; }
+  .frame-art img { width: 100%; height: 100%; object-fit: cover; transition: filter .15s linear; }
+  .noise { position: absolute; inset: 0; pointer-events: none; image-rendering: pixelated; background-size: 256px 256px; mix-blend-mode: hard-light; }
+  .hud { position: absolute; left: 14px; top: 14px; font: 12px/1.5 var(--mono); color: #fff; background: rgba(0,0,0,0.55); padding: 7px 10px; border-radius: 7px; }
+  .hud b { color: #7cf08a; font-weight: 400; }
+  .piece h3 { font-size: 30px; margin-bottom: 14px; }
+  .piece p { color: var(--muted); }
+
+  /* iPhone Duo: Apple's frames, used as supplied (never tilted, cropped, shadowed or animated) */
+  .pair { display: grid; grid-template-columns: 2.25fr 1fr; gap: 40px; align-items: end; }
+  .screen { position: relative; }
+  .screen video { position: absolute; left: 3.880%; top: 5.340%; width: 92.240%; height: 89.319%; object-fit: cover; background: #000; }
+  .screen img.bezel { position: relative; pointer-events: none; }
+  .dod { margin-top: 110px; }
+  .dod .head { margin-bottom: 40px; }
+  .dod .video { max-width: 1000px; margin: 0 auto; }
+  .hands { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 56px; }
+  .hands img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 6px; }
+  .trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 48px; }
+
+  /* What it does: a portfolio-style mix, not a zig-zag */
+  .feature-wide { display: grid; grid-template-columns: 1.4fr 0.6fr; gap: 48px; align-items: center; margin-bottom: 80px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 56px 48px; }
+  .feature h3, .feature-wide h3 { font-size: 26px; margin: 22px 0 10px; }
+  .feature-wide h3 { margin-top: 0; }
+  .feature p, .feature-wide p { color: var(--muted); font-size: 17px; }
+
+  /* Closing */
+  .closing { position: relative; }
+  .closing img { width: 100%; max-height: 86vh; object-fit: cover; }
+  .closing .over { position: absolute; left: 0; right: 0; bottom: 0; padding: 140px 0 48px; background: linear-gradient(to top, var(--bg), rgba(13,13,14,0)); }
+  .closing h2 { font-size: clamp(36px, 4.6vw, 60px); margin-bottom: 18px; }
+  .req { color: var(--muted); font-size: 16px; max-width: 640px; }
+
+  /* Footer */
+  footer { border-top: 1px solid var(--line); padding: 56px 0 70px; }
+  .socials { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; padding-bottom: 44px; margin-bottom: 44px; border-bottom: 1px solid var(--line); }
+  .socials a { display: inline-flex; align-items: center; justify-content: center; width: 50px; height: 50px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.16); color: var(--fg); text-decoration: none; transition: background .2s, border-color .2s; }
+  .socials a:hover { background: var(--orange); border-color: var(--orange); color: #111; }
+  .socials svg { width: 21px; height: 21px; fill: currentColor; }
+  .studio { display: grid; grid-template-columns: 56px 1fr; gap: 20px; align-items: start; max-width: 780px; }
+  .studio img { width: 56px; height: 56px; border-radius: 13px; }
+  .studio p { font-size: 15px; color: var(--muted); margin: 0; line-height: 1.7; }
+  .fine { margin: 40px 0 0; font-size: 12.5px; line-height: 1.7; color: var(--faint); }
+  .legal { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 14px 0 0; font-size: 13px; }
+  .legal a { color: var(--muted); }
+  .legal span { color: var(--faint); }
+
+  @media (max-width: 860px) {
+    body { font-size: 17px; }
+    .wrap { padding: 0 18px; }
+    .bar { padding: 14px 18px; }
+    .bar .by { display: none; }
+    .open-img .cap { right: 18px; }
+    .statement { padding: 80px 0 30px; }
+    .maker { padding-bottom: 80px; }
+    .note { grid-template-columns: 1fr; padding: 24px; gap: 18px; }
+    .note img { width: 72px; height: 72px; border-radius: 17px; }
+    section.block { padding: 80px 0; }
+    .head, .piece, .feature-wide, .grid2 { grid-template-columns: 1fr; gap: 28px; }
+    .head { margin-bottom: 36px; }
+    .pair { gap: 14px; }
+    .hands, .trio { grid-template-columns: 1fr; gap: 20px; }
+    .closing .over { padding-top: 90px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <a class="brand" href="#"><img src="../img/icon.png" alt="">RAYS</a>
+  <span class="by">by <a href="https://www.sketchbot.tv">Sketchbot Studios</a></span>
+</header>
+
+<div class="open-img">
+  <div class="wrap open-copy">
+    <h1>RAYS</h1>
+    <p class="sub">A pocket path tracer, designed for iPhone Duo.</p>
+    <div class="buy">
+      <!-- Replace href with the App Store link once RAYS is live. -->
+      <a class="btn" href="#get"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.7-3.18-1.73-1.35-.14-2.64.8-3.33.8-.69 0-1.74-.78-2.87-.76-1.47.02-2.83.86-3.59 2.18-1.53 2.66-.39 6.6 1.1 8.75.73 1.05 1.6 2.24 2.73 2.2 1.1-.05 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.07 2.65-2.13.84-1.22 1.18-2.4 1.2-2.46-.03-.01-2.27-.87-2.29-3.47zM14.2 6.13c.6-.73 1.01-1.75.9-2.76-.87.04-1.92.58-2.54 1.31-.56.64-1.05 1.68-.92 2.67.97.08 1.96-.49 2.56-1.22z"/></svg>Coming soon to the App Store</a>
+      <span>$9.99, no subscription</span>
+    </div>
+  </div>
+  <p class="cap">Sketchbots, rendered in RAYS</p>
+</div>
+
+<section class="statement">
+  <div class="wrap narrow">
+    <p>Real path-traced light, the kind film and product-visualization renderers use, running on your iPhone's hardware ray tracing. Hit Render, and watch a photoreal image come together in seconds.</p>
+  </div>
+</section>
+
+<section class="maker">
+  <div class="wrap narrow">
+    <div class="note">
+      <img src="../img/sketchbot-eye.jpg" alt="The Sketchbot eye, Sketchbot Studios' mark" width="256" height="256">
+      <div>
+        <p>As a computer graphics artist for more than 30 years, I've always loved the idea of creating on the go: real images, made wherever I happen to be. RAYS is the first app in a creative suite built on that philosophy.</p>
+        <p class="sig">Steve Talkowski, <a href="https://www.sketchbot.tv">Sketchbot Studios</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block">
+  <div class="wrap piece">
+    <figure>
+      <div class="frame-art" id="art">
+        <img src="../img/cornell-sketchbot.jpg" alt="Sketchbot, an orange one-eyed robot holding a pencil, standing in a Cornell box with a red left wall and green right wall, beside a small glass ball and a mirror ball, lit by one ceiling light." id="artImg" width="1000" height="1000">
+        <div class="noise" id="noise"></div>
+        <div class="hud" id="hud">1 / 128 spp</div>
+      </div>
+      <figcaption class="cap"><b>Sketchbot Cornell Box.</b> Mirror ball, glass ball, one overhead area light. Rendered in RAYS.</figcaption>
+    </figure>
+    <div>
+      <h3>One light path per pixel, every frame</h3>
+      <p>RAYS is a progressive path tracer. Each sample follows light as it bounces through the scene, so soft shadows, reflections, glass and the color bleeding off every wall all simply happen, and the image cleans up the longer it runs.</p>
+      <p>The Cornell box is computer graphics' most famous test scene, built here from Cornell's published measurements.</p>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="duo">
+  <div class="wrap">
+    <div class="head">
+      <h2>Made for iPhone Duo, folded or open</h2>
+      <p>Open it for a wide canvas with the panels beside your render; fold it closed and the whole studio is still in one hand. RAYS is at home on every iPhone with hardware ray tracing, too.</p>
+    </div>
+    <div class="pair">
+      <figure>
+        <img src="../img/open.webp" alt="RAYS on the open iPhone Duo: three traffic cones path traced on a reflective floor." width="1800" height="1308">
+        <figcaption class="cap"><b>Open.</b> Traffic cones, path traced.</figcaption>
+      </figure>
+      <figure>
+        <img src="../img/closed.webp" alt="RAYS on the closed iPhone Duo's outer display: the same traffic cones." width="900" height="1255">
+        <figcaption class="cap"><b>Closed.</b> The same scene.</figcaption>
+      </figure>
+    </div>
+
+    <div class="dod">
+      <div class="head">
+        <h2>Duo, on a Duo!</h2>
+        <p>Apple's own iPhone Duo USDZ <a href="https://www.apple.com/105/media/us/iphone-duo/2026/9305e4b9-72d9-4c05-9381-b572adadd5e5/ar/iPhone_Duo_e-sim_Star-White_Variant.usdz">model</a>, opened in RAYS on an iPhone Duo. Switch its Color and Pose variants, light it with an HDRI and a shadow catcher, and render it, all in your hand.</p>
+      </div>
+      <div class="video">
+        <div class="screen">
+          <video src="../img/duo-on-duo.mp4" poster="../img/duo-on-duo.jpg" autoplay muted loop playsinline preload="metadata"
+                 aria-label="Screen recording: the iPhone Duo model in RAYS, switching colors and poses, lit by an HDRI with a shadow catcher."></video>
+          <img class="bezel" src="../img/bezel-open.webp" alt="" width="1800" height="1308">
+        </div>
+      </div>
+      <div class="hands">
+        <figure><img src="../img/hand-night.jpg" alt="An iPhone Duo held in hand, showing RAYS with the Night Sky Duo model closed." loading="lazy" width="2000" height="1125"><figcaption class="cap"><b>Night Sky, closed.</b></figcaption></figure>
+        <figure><img src="../img/hand-white.jpg" alt="An iPhone Duo held in hand, showing RAYS with the Star White Duo model open in landscape." loading="lazy" width="2000" height="1125"><figcaption class="cap"><b>Star White, landscape pose.</b></figcaption></figure>
+      </div>
+      <div class="trio">
+        <figure><img src="../img/duo-white-open.webp" alt="RAYS: the Star White iPhone Duo model, open." loading="lazy" width="1800" height="1308"><figcaption class="cap">Star White, open</figcaption></figure>
+        <figure><img src="../img/duo-white-landscape.webp" alt="RAYS: the Duo model in its Landscape pose, its screen facing the camera." loading="lazy" width="1800" height="1308"><figcaption class="cap">Landscape pose</figcaption></figure>
+        <figure><img src="../img/duo-white-closed.webp" alt="RAYS: the Star White iPhone Duo model, closed." loading="lazy" width="1800" height="1308"><figcaption class="cap">Star White, closed</figcaption></figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="features">
+  <div class="wrap">
+    <div class="head">
+      <h2>What's in the box</h2>
+      <p>Import a model, light it, render it, save it, all on the phone in your hand.</p>
+    </div>
+
+    <div class="feature-wide">
+      <figure>
+        <img src="../img/render.webp" alt="Render settings and the HUD over the material spheres: 128 of 128 samples done in 11.5 seconds, with Samples, Bounces, Resolution, Denoise and Firefly clamp." loading="lazy" width="1800" height="1308">
+        <figcaption class="cap"><b>Material Spheres.</b> 128 samples, 8 bounces, 1780 &times; 1252, 11.5 s on iPhone Duo.</figcaption>
+      </figure>
+      <div>
+        <h3>Render</h3>
+        <p>Progressive path tracing on physically based materials: metal, gloss, clear coat, clear and frosted glass. A denoiser for clean images sooner, real depth of field with Tap to Focus, and saves to Photos as PNG or HDR, plus EXR for compositing.</p>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="feature">
+        <img src="../img/light.webp" alt="An area light selected above Sketchbot on a blue backdrop, with its size shown and the light's settings panel open." loading="lazy" width="1800" height="1308">
+        <h3>Light</h3>
+        <p>Three studio HDRIs, plus sun, bulb, spot and area lights placed right in the view. A shadow catcher and ground projection sit your model on the HDRI's own floor, and backdrop colors bounce light back like a studio cyc.</p>
+      </div>
+      <div class="feature">
+        <img src="../img/import.webp" alt="RAYS on iPhone Duo: the Scene panel listing Sketchbot's hierarchy, cameras and materials beside the rendered character." loading="lazy" width="1800" height="1308">
+        <h3>Import</h3>
+        <p>USDZ, USD, glTF, GLB and OBJ, from Files, Mail, Messages or AirDrop. Materials, textures, variants and lights come in with the model, your original file is never changed, and several models can share one scene.</p>
+      </div>
+      <div class="feature">
+        <img src="../img/preview.webp" alt="Preview Effects on Sketchbot: ambient occlusion, scanlines and grain, with the effects panel open." loading="lazy" width="1800" height="1308">
+        <h3>Preview</h3>
+        <p>A fast real-time view for framing and arranging, with Preview Effects: ambient occlusion, curvature, depth of field, bloom, tone mapping, color balance and grain. Saved cameras use real focal lengths.</p>
+      </div>
+      <div class="feature">
+        <img src="../img/scenes.webp" alt="The classic 1985 Cornell box sample, path traced in RAYS: a tall and a short block between red and green walls." loading="lazy" width="1800" height="1308">
+        <h3>Scenes</h3>
+        <p>Every move, light, camera and material edit saves as one USD file that opens in Quick Look, Blender and other USD apps. Or start from the samples: Sketchbot, Material Spheres and two classic Cornell boxes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="closing" id="get">
+  <img src="../img/crew.jpg" alt="Six Sketchbot characters in orange, lime, magenta, red, blue and charcoal, each holding an art tool, reflected in a glossy blue floor." loading="lazy" width="2000" height="1333">
+  <div class="over">
+    <div class="wrap">
+      <h2>Your Pocket Renderer.</h2>
+      <div class="buy" style="margin-bottom:22px">
+        <a class="btn" href="#get">Coming soon to the App Store</a>
+        <a href="https://stevetalkowski.github.io/rays-support/">Support</a>
+      </div>
+      <p class="req">Rendering needs an iPhone with hardware ray tracing: iPhone 15 Pro, iPhone 16 or later. On other iPhones RAYS works in Preview only.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <nav class="socials" aria-label="Steve Talkowski on social media">
+      <a href="https://x.com/SteveTalkowski" aria-label="Steve Talkowski on X" title="X" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg></a>
+      <a href="https://www.instagram.com/stevetalkowski" aria-label="Steve Talkowski on Instagram" title="Instagram" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/></svg></a>
+      <a href="https://www.threads.net/@stevetalkowski" aria-label="Steve Talkowski on Threads" title="Threads" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.589 12c.027 3.086.718 5.496 2.057 7.164 1.43 1.783 3.631 2.698 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.31-.71-.873-1.3-1.634-1.75-.192 1.352-.622 2.446-1.284 3.272-.886 1.102-2.14 1.704-3.73 1.79-1.202.065-2.361-.218-3.259-.801-1.063-.689-1.685-1.74-1.752-2.964-.065-1.19.408-2.285 1.33-3.082.88-.76 2.119-1.207 3.583-1.291a13.853 13.853 0 0 1 3.02.142c-.126-.742-.375-1.332-.75-1.757-.513-.586-1.308-.883-2.359-.89h-.029c-.844 0-1.992.232-2.721 1.32L7.734 7.847c.98-1.454 2.568-2.256 4.478-2.256h.044c3.194.02 5.097 1.975 5.287 5.388.108.046.216.094.321.142 1.49.7 2.58 1.761 3.154 3.07.797 1.82.871 4.79-1.548 7.158-1.85 1.81-4.094 2.628-7.277 2.65Zm1.003-11.69c-.242 0-.487.007-.739.021-1.836.103-2.98.946-2.916 2.143.067 1.256 1.452 1.839 2.784 1.767 1.224-.065 2.818-.543 3.086-3.71a10.5 10.5 0 0 0-2.215-.221z"/></svg></a>
+      <a href="https://www.youtube.com/@stevetalkowski" aria-label="Steve Talkowski on YouTube" title="YouTube" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+      <a href="https://www.linkedin.com/in/stevetalkowski" aria-label="Steve Talkowski on LinkedIn" title="LinkedIn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+    </nav>
+    <div class="studio">
+      <img src="../img/sketchbot-eye.jpg" alt="Sketchbot Studios" width="256" height="256">
+      <p>RAYS is a real path tracer in your pocket: import a model, light it with an HDRI, hit Render and watch a photoreal image come together in seconds. Made with Swift, Metal and RealityKit in Xcode by <a href="https://www.sketchbot.tv">Sketchbot Studios</a> in Los Angeles, CA, designed for iPhone Duo and at home on every iPhone with hardware ray tracing. Every render on this page was made in RAYS.</p>
+    </div>
+    <p class="fine">&copy; 2026 Sketchbot Studios, Inc., Los Angeles, CA.
+    RAYS, Sketchbot and all characters are original works. Screenshots are captured from current builds; features may change before release.
+    iPhone, iPhone Duo, App Store, AirDrop, Metal, Quick Look, RealityKit and Xcode are trademarks of Apple Inc., registered in the U.S. and other countries and regions.</p>
+    <p class="legal"><a href="https://stevetalkowski.github.io/rays-support/privacy.html">Privacy</a><a href="https://stevetalkowski.github.io/rays-support/">Support</a><a href="mailto:steve@sketchbot.tv">Contact</a><a href="https://www.sketchbot.tv">sketchbot.tv</a><span>$9.99, no subscription</span></p>
+  </div>
+</footer>
+
+<script>
+  // The Cornell piece "renders" once when it scrolls into view (noise falling off as
+  // 1/sqrt(samples), the HUD counting to 128). The only motion on the page.
+  (() => {
+    const noise = document.getElementById('noise'), hud = document.getElementById('hud'), img = document.getElementById('artImg');
+    const cap = 128, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const c = document.createElement('canvas'); c.width = c.height = 128;
+    const g = c.getContext('2d'), d = g.createImageData(128, 128);
+    for (let i = 0; i < d.data.length; i += 4) {
+      const fire = Math.random() < 0.012, v = fire ? 255 : Math.random() * 255;
+      for (let k = 0; k < 3; k++) d.data[i + k] = fire ? 255 : v * (0.6 + Math.random() * 0.4);
+      d.data[i + 3] = 255;
+    }
+    g.putImageData(d, 0, 0);
+    noise.style.backgroundImage = `url(${c.toDataURL()})`;
+    const show = spp => {
+      const k = 1 / Math.sqrt(spp);
+      noise.style.opacity = spp >= cap ? 0 : Math.min(0.9, k * 1.1).toFixed(3);
+      img.style.filter = spp >= cap ? 'none' : `brightness(${0.75 + 0.25 * (1 - k)})`;
+      noise.style.backgroundPosition = `${Math.random() * 256 | 0}px ${Math.random() * 256 | 0}px`;
+      hud.innerHTML = spp >= cap ? `${cap} / ${cap} spp <b>&#10003; done</b>` : `${spp} / ${cap} spp`;
+    };
+    if (reduce) { show(cap); return; }
+    show(1);
+    new IntersectionObserver((es, o) => {
+      if (!es[0].isIntersecting) return;
+      o.disconnect();
+      const t0 = performance.now(), dur = 4200;
+      const step = t => { const p = Math.min((t - t0) / dur, 1); show(Math.max(1, Math.round(cap * p * p))); if (p < 1) requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+    }, { threshold: 0.5 }).observe(document.getElementById('art'));
+  })();
+  // With reduced motion the Duo video waits for a tap.
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches)
+    document.querySelectorAll('video[autoplay]').forEach(v => { v.removeAttribute('autoplay'); v.pause(); v.controls = true; });
+</script>
+</body>
+</html>
