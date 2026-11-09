@@ -152,17 +152,31 @@
   .pills li { font-size: 14px; padding: 7px 13px; border-radius: 999px; border: 1px solid var(--line); color: #c9d1e0; background: var(--bg2); }
 
   /* ---------- feature chapters ---------- */
-  .chapter { padding: 110px 0; border-top: 1px solid var(--line); position: relative; overflow: hidden; isolation: isolate; }
-  .chapter-grid { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 64px; align-items: center; }
-  .chapter.flip .chapter-grid { grid-template-columns: 1.2fr 0.8fr; }
+  /* Each chapter's color wash fades to nothing before the section's top and bottom edges,
+     so no hard dark band meets it (Steve 2026-11-09). */
+  .chapter {
+    padding: 110px 0; border-top: 1px solid var(--line); position: relative; overflow: hidden; isolation: isolate;
+    background: radial-gradient(60% 50% at 0% 50%,
+      color-mix(in srgb, var(--accent) 52%, transparent) 0%,
+      color-mix(in srgb, var(--accent) 18%, transparent) 55%,
+      transparent 100%);
+  }
+  .chapter.flip {
+    background: radial-gradient(60% 50% at 100% 50%,
+      color-mix(in srgb, var(--accent) 52%, transparent) 0%,
+      color-mix(in srgb, var(--accent) 18%, transparent) 55%,
+      transparent 100%);
+  }
+  .chapter-grid { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 56px; align-items: center; }
+  .chapter.flip .chapter-grid { grid-template-columns: 1.15fr 0.85fr; }
   .chapter.flip .copy { order: 2; }
-  .chapter h2 { font-size: clamp(40px, 5.2vw, 72px); line-height: 0.98; margin-bottom: 22px; }
+  .chapter h2 { font-size: clamp(40px, 4.6vw, 64px); line-height: 0.98; margin-bottom: 14px; }
   .chapter .num { font-size: 15px; color: var(--faint); font-weight: 700; letter-spacing: 0.2em; }
   .chapter ul { list-style: none; padding: 0; margin: 0; }
-  .chapter li { padding: 14px 0 14px 30px; border-bottom: 1px solid var(--line); color: #cfd6e4; position: relative; }
+  .chapter li { padding: 10px 0 10px 28px; border-bottom: 1px solid var(--line); color: #cfd6e4; position: relative; font-size: 16.5px; line-height: 1.5; }
   .chapter li:last-child { border-bottom: 0; }
   .chapter li::before {
-    content: ""; position: absolute; left: 2px; top: 23px; width: 12px; height: 12px; border-radius: 50%;
+    content: ""; position: absolute; left: 2px; top: 16px; width: 12px; height: 12px; border-radius: 50%;
     background: radial-gradient(circle at 35% 35%, #fff, var(--accent, var(--blue)) 55%, #000 120%);
   }
   .chapter li strong { color: var(--fg); }
@@ -171,8 +185,7 @@
   .chapter.render  { --accent: #ff9a2e; }
   .chapter.preview { --accent: #c08cff; }
   .chapter.scenes  { --accent: #6fdc55; }
-  .glow { position: absolute; width: 680px; height: 680px; border-radius: 50%; filter: blur(130px); opacity: 0.5; pointer-events: none; z-index: -1; background: var(--accent); }
-  .duo-sec .glow { opacity: 0.38; }
+  .glow { position: absolute; width: 680px; height: 680px; border-radius: 50%; filter: blur(130px); opacity: 0.38; pointer-events: none; z-index: -1; background: var(--accent); }
 
   /* ---------- crew band ---------- */
   .crew { position: relative; padding: 0; }
@@ -214,6 +227,13 @@
     .reveal { opacity: 1; transform: none; transition: none; }
     .hero::before { animation: none; }
     html { scroll-behavior: auto; }
+  }
+
+  /* ---------- mid widths: keep each chapter's text within its screenshot's height ---------- */
+  @media (min-width: 861px) and (max-width: 1180px) {
+    .chapter-grid, .chapter.flip .chapter-grid { gap: 40px; }
+    .chapter li { font-size: 15px; padding: 7px 0 7px 26px; }
+    .chapter li::before { top: 12px; }
   }
 
   /* ---------- small screens ---------- */
@@ -291,8 +311,8 @@
 
     <div class="dod">
       <p class="eyebrow reveal">iPhone Duo, rendered on iPhone Duo</p>
-      <h2 class="reveal"><span class="grad">Duo on a Duo!</span></h2>
-      <p class="sub reveal">Apple's own iPhone Duo model, opened in RAYS on an iPhone Duo. Switch its Color and Pose variants, light it with an HDRI and a shadow catcher, and render it, all in your hand.</p>
+      <h2 class="reveal"><span class="grad">Duo, on a Duo!</span></h2>
+      <p class="sub reveal"><a href="https://www.apple.com/105/media/us/iphone-duo/2026/9305e4b9-72d9-4c05-9381-b572adadd5e5/ar/iPhone_Duo_e-sim_Star-White_Variant.usdz">Apple's own iPhone Duo USDZ model sample</a>, opened in RAYS on an iPhone Duo. Switch its Color and Pose variants, light it with an HDRI and a shadow catcher, and render it, all in your hand.</p>
       <div class="video">
         <div class="screen">
           <video src="img/duo-on-duo.mp4" poster="img/duo-on-duo.jpg" autoplay muted loop playsinline preload="metadata"
@@ -333,7 +353,6 @@
 </section>
 
 <section class="chapter import" id="import">
-  <div class="glow" style="left:-200px; top:60px"></div>
   <div class="wrap chapter-grid">
     <div class="copy reveal">
       <p class="num">01</p>
@@ -349,16 +368,15 @@
 </section>
 
 <section class="chapter light flip" id="light">
-  <div class="glow" style="right:-200px; top:100px"></div>
   <div class="wrap chapter-grid">
     <div class="copy reveal">
       <p class="num">02</p>
       <h2>Light</h2>
       <ul>
-        <li><strong>Three studio HDRIs</strong> light your model with real image-based light. Turn them, set their exposure, or show them behind the model.</li>
+        <li><strong>Three studio HDRIs</strong> for real image-based light: turn them, set their exposure, show them behind the model.</li>
         <li><strong>Sun, bulb, spot and area lights</strong>, placed and aimed right in the view.</li>
-        <li><strong>Shadow catcher</strong>: an invisible floor that catches soft shadows and reflections. <strong>Ground projection</strong> lays the HDRI's floor under your model.</li>
-        <li><strong>Backdrop colors with Bounce light</strong>: the set color lights your model back, like a colored studio cyc.</li>
+        <li><strong>Shadow catcher and ground projection</strong>: soft shadows and reflections on the HDRI's own floor.</li>
+        <li><strong>Backdrop colors with Bounce light</strong>, like a colored studio cyc.</li>
       </ul>
     </div>
     <figure class="device"><img src="img/light.webp" alt="An area light selected above Sketchbot on a blue backdrop, with its size shown and the light's settings panel open." loading="lazy" width="1800" height="1308"></figure>
@@ -366,16 +384,15 @@
 </section>
 
 <section class="chapter render" id="render">
-  <div class="glow" style="left:-200px; top:60px"></div>
   <div class="wrap chapter-grid">
     <div class="copy reveal">
       <p class="num">03</p>
       <h2>Render</h2>
       <ul>
-        <li><strong>Progressive path tracing</strong>: soft shadows, reflections, glass and bounce light, refining with every sample.</li>
-        <li><strong>Physically based materials</strong>: metal, glossy and rough surfaces, clear coat, clear and frosted glass.</li>
-        <li><strong>A denoiser</strong> for clean images faster, and <strong>depth of field</strong> with real camera settings and Tap to Focus.</li>
-        <li><strong>Save to Photos</strong> as PNG or HDR photos, plus EXR for compositing.</li>
+        <li><strong>Progressive path tracing</strong>: soft shadows, reflections, glass and bounce light.</li>
+        <li><strong>Physically based materials</strong>: metal, gloss, clear coat, clear and frosted glass.</li>
+        <li><strong>Denoiser and depth of field</strong>, with real camera settings and Tap to Focus.</li>
+        <li><strong>Save to Photos</strong> as PNG or HDR, plus EXR for compositing.</li>
       </ul>
     </div>
     <figure class="device"><img src="img/render.webp" alt="Render settings and the HUD over the material spheres: 128 of 128 samples done in 11.5 seconds, with Samples, Bounces, Resolution, Denoise and Firefly clamp." loading="lazy" width="1800" height="1308"></figure>
@@ -383,14 +400,13 @@
 </section>
 
 <section class="chapter preview flip" id="preview">
-  <div class="glow" style="right:-200px; top:80px"></div>
   <div class="wrap chapter-grid">
     <div class="copy reveal">
       <p class="num">04</p>
       <h2>Preview</h2>
       <ul>
         <li><strong>A fast real-time Preview</strong> for framing and arranging.</li>
-        <li><strong>Preview Effects</strong>: ambient occlusion, curvature, depth of field, bloom, tone mapping (Neutral, AgX, ACES), color balance, vignette, grain and more.</li>
+        <li><strong>Preview Effects</strong>: ambient occlusion, curvature, depth of field, bloom, tone mapping, color balance, grain and more.</li>
         <li><strong>Saved cameras</strong> with real focal lengths, including a Default camera to get back to the opening view.</li>
       </ul>
     </div>
@@ -399,7 +415,6 @@
 </section>
 
 <section class="chapter scenes" id="scenes">
-  <div class="glow" style="left:-200px; top:60px"></div>
   <div class="wrap chapter-grid">
     <div class="copy reveal">
       <p class="num">05</p>
