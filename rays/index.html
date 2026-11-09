@@ -110,7 +110,14 @@
   .screen img.bezel { position: relative; pointer-events: none; }
 
   /* ---------- designed for iPhone Duo ---------- */
-  .duo-sec { padding: 110px 0 120px; text-align: center; border-top: 1px solid var(--line); position: relative; overflow: hidden; isolation: isolate; }
+  /* A blue wash behind "Folded or open." that fades out on every side (Steve 2026-11-09: the
+     blurred spot looked cut off by dark bars). */
+  .duo-sec {
+    padding: 110px 0 120px; text-align: center; border-top: 1px solid var(--line); position: relative; overflow: hidden; isolation: isolate;
+    background:
+      radial-gradient(80% 640px at 50% 680px,
+        rgba(79,155,255,0.62) 0%, rgba(79,155,255,0.30) 38%, rgba(79,155,255,0.09) 70%, rgba(79,155,255,0) 100%);
+  }
   .duo-sec h2 { font-size: clamp(44px, 6.4vw, 92px); line-height: 0.98; margin-bottom: 18px; }
   .duo-sec p.sub { color: var(--muted); max-width: 680px; margin: 0 auto 64px; }
   .fold-row { display: grid; grid-template-columns: 2.25fr 1fr; gap: 48px; align-items: end; max-width: 1080px; margin: 0 auto; }
@@ -185,7 +192,6 @@
   .chapter.render  { --accent: #ff9a2e; }
   .chapter.preview { --accent: #c08cff; }
   .chapter.scenes  { --accent: #6fdc55; }
-  .glow { position: absolute; width: 680px; height: 680px; border-radius: 50%; filter: blur(130px); opacity: 0.38; pointer-events: none; z-index: -1; background: var(--accent); }
 
   /* ---------- crew band ---------- */
   .crew { position: relative; padding: 0; }
@@ -206,7 +212,7 @@
   .req strong { color: var(--fg); }
   /* Footer: laid out like faunafantasy.com (three columns, then the fine print, then the links). */
   footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 54px 0 70px; }
-  footer .fcols { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 40px; }
+  footer .fcols { max-width: 720px; }
   footer h4 { margin: 0 0 8px; font-size: 13px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--blue); }
   footer .fcols p, footer .fcols li { font-size: 14px; line-height: 1.7; color: var(--muted); }
   footer .fcols p { margin: 0 0 14px; }
@@ -250,8 +256,6 @@
     .dod { margin-top: 90px; }
     .hands { grid-template-columns: 1fr; gap: 16px; margin-top: 40px; }
     .shots { grid-template-columns: 1fr; gap: 24px; margin-top: 40px; }
-    .glow { width: 420px; height: 420px; filter: blur(100px); }
-    footer .fcols { grid-template-columns: 1fr; gap: 28px; }
   }
 </style>
 </head>
@@ -293,8 +297,7 @@
 </section>
 
 <section class="duo-sec" id="duo" style="--accent:#4f9bff">
-  <div class="glow" style="left:50%; top:220px; transform:translateX(-50%)"></div>
-  <div class="wrap">
+    <div class="wrap">
     <p class="eyebrow reveal">Designed for iPhone Duo</p>
     <h2 class="reveal">Folded or open.</h2>
     <p class="sub reveal">RAYS was designed for iPhone Duo from the start. Open it up for a wide canvas with the panels beside your render; fold it closed and the whole studio is still in one hand. It's at home on every iPhone with hardware ray tracing, too.</p>
@@ -312,7 +315,7 @@
     <div class="dod">
       <p class="eyebrow reveal">iPhone Duo, rendered on iPhone Duo</p>
       <h2 class="reveal"><span class="grad">Duo, on a Duo!</span></h2>
-      <p class="sub reveal"><a href="https://www.apple.com/105/media/us/iphone-duo/2026/9305e4b9-72d9-4c05-9381-b572adadd5e5/ar/iPhone_Duo_e-sim_Star-White_Variant.usdz">Apple's own iPhone Duo USDZ model sample</a>, opened in RAYS on an iPhone Duo. Switch its Color and Pose variants, light it with an HDRI and a shadow catcher, and render it, all in your hand.</p>
+      <p class="sub reveal">Apple's own iPhone Duo USDZ <a href=\"https://www.apple.com/105/media/us/iphone-duo/2026/9305e4b9-72d9-4c05-9381-b572adadd5e5/ar/iPhone_Duo_e-sim_Star-White_Variant.usdz\">model</a>, opened in RAYS on an iPhone Duo. Switch its Color and Pose variants, light it with an HDRI and a shadow catcher, and render it, all in your hand.</p>
       <div class="video">
         <div class="screen">
           <video src="img/duo-on-duo.mp4" poster="img/duo-on-duo.jpg" autoplay muted loop playsinline preload="metadata"
@@ -453,34 +456,15 @@
       <div>
         <h4>RAYS</h4>
         <p>A real path tracer in your pocket: import a model, light it with an HDRI, hit Render and watch a
-        photoreal image come together in seconds. Made with Swift, Metal and RealityKit by Sketchbot Studios
-        in Los Angeles, CA, designed for iPhone Duo and at home on every iPhone with hardware ray tracing.</p>
-      </div>
-      <div>
-        <h4>This page</h4>
-        <ul>
-          <li><a href="#duo">Designed for iPhone Duo</a></li>
-          <li><a href="#import">Import</a></li>
-          <li><a href="#light">Light</a></li>
-          <li><a href="#render">Render</a></li>
-          <li><a href="#preview">Preview</a></li>
-          <li><a href="#scenes">Scenes</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4>Made with</h4>
-        <ul>
-          <li>Metal hardware ray tracing, for every render</li>
-          <li>Studio HDRIs from Poly Haven (CC0)</li>
-          <li>Arial, the face throughout</li>
-          <li>Every render on this page was made in RAYS</li>
-        </ul>
+        photoreal image come together in seconds. Made with Swift, Metal and RealityKit in Xcode by Sketchbot
+        Studios in Los Angeles, CA, designed for iPhone Duo and at home on every iPhone with hardware ray
+        tracing. Every render on this page was made in RAYS.</p>
       </div>
     </div>
     <p class="fine">&copy; 2026 Sketchbot Studios, Inc., Los Angeles, CA.
     RAYS, Sketchbot and all characters are original works. Screenshots are captured from current builds; features
     may change before release.
-    iPhone, iPhone Duo, App Store, AirDrop, Metal, Quick Look and RealityKit are trademarks of Apple Inc., registered in the U.S. and other countries and regions.</p>
+    iPhone, iPhone Duo, App Store, AirDrop, Metal, Quick Look, RealityKit and Xcode are trademarks of Apple Inc., registered in the U.S. and other countries and regions.</p>
     <p class="legal"><a href="https://stevetalkowski.github.io/rays-support/privacy.html">Privacy</a><a href="https://stevetalkowski.github.io/rays-support/">Support</a><a href="mailto:steve@sketchbot.tv">Contact</a><span>$9.99 &middot; no subscription</span></p>
   </div>
 </footer>
