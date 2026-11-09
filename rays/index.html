@@ -56,8 +56,8 @@
   .bar.solid { background: rgba(5,7,12,0.82); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
   .brand { display: flex; align-items: center; gap: 10px; color: var(--fg); font-weight: 700; letter-spacing: 0.08em; }
   .brand img { width: 30px; height: 30px; border-radius: 7px; }
-  .bar nav a { color: var(--muted); font-size: 15px; margin-left: 22px; }
-  .bar nav a:hover { color: var(--fg); text-decoration: none; }
+  .bar .by { color: var(--muted); font-size: 15px; }
+  .bar .by a { color: var(--fg); }
 
   /* ---------- hero ---------- */
   .hero {
@@ -81,7 +81,7 @@
                 linear-gradient(to right, rgba(5,7,12,0.45), rgba(5,7,12,0) 55%);
     pointer-events: none;
   }
-  .hero-copy { position: relative; z-index: 2; padding-bottom: 9vh; }
+  .hero-copy { position: relative; z-index: 2; padding-bottom: 9vh; width: 100%; max-width: none; padding-left: 56px; padding-right: 56px; }
   .hero .eyebrow { color: #fff; opacity: 0.92; margin-bottom: 8px; }
   .hero h1 { font-size: clamp(72px, 14vw, 180px); line-height: 0.9; letter-spacing: -0.03em; text-shadow: 0 6px 40px rgba(0,0,0,0.35); }
   .hero .tag { font-size: clamp(22px, 3vw, 34px); font-weight: 700; margin: 10px 0 18px; }
@@ -96,10 +96,18 @@
   .btn svg { width: 20px; height: 20px; }
   .btn.ghost { background: rgba(255,255,255,0.12); color: var(--fg); border: 1px solid rgba(255,255,255,0.25); backdrop-filter: blur(8px); }
   .price { color: #dfe6f3; font-size: 15px; }
+  .hero .cap { position: absolute; right: 24px; bottom: 22px; z-index: 2; margin: 0; font: 12.5px/1.5 Menlo, ui-monospace, monospace; color: rgba(244,246,250,0.65); }
 
   /* ---------- statement ---------- */
-  .statement { padding: 120px 0 60px; text-align: center; }
+  .statement { padding: 120px 0 56px; text-align: center; }
   .statement p { font-size: clamp(26px, 3.6vw, 44px); line-height: 1.25; font-weight: 700; max-width: 980px; margin: 0 auto; letter-spacing: -0.015em; }
+  /* The maker's note: the Sketchbot eye and Steve's words. */
+  .maker { padding: 0 0 110px; }
+  .note { display: grid; grid-template-columns: 96px 1fr; gap: 28px; align-items: start; max-width: 860px; margin: 0 auto; padding: 30px 32px; text-align: left; background: var(--bg2); border: 1px solid var(--line); border-radius: 22px; }
+  .note img { width: 96px; height: 96px; border-radius: 22px; }
+  .note p { margin: 0 0 12px; font-size: 19px; color: #dfe6f3; }
+  .note .sig { margin: 0; font-size: 15px; color: var(--muted); }
+  .note .sig a { color: var(--fg); text-decoration: underline; text-decoration-color: rgba(244,246,250,0.35); text-underline-offset: 3px; }
 
   /* ---------- Apple device frames (used as supplied: never tilted, cropped, shadowed or animated) ---------- */
   .device { margin: 0; }
@@ -128,7 +136,7 @@
   .dod .video { max-width: 980px; margin: 0 auto; }
   .hands { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 72px 0 0; }
   .hands img { border-radius: 18px; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
-  .shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 64px; }
+  .hands.one { grid-template-columns: minmax(0, 560px); justify-content: center; }
 
   /* ---------- the Cornell piece ---------- */
   .piece { padding: 110px 0 120px; border-top: 1px solid var(--line); }
@@ -178,7 +186,6 @@
   .chapter.flip .chapter-grid { grid-template-columns: 1.15fr 0.85fr; }
   .chapter.flip .copy { order: 2; }
   .chapter h2 { font-size: clamp(40px, 4.6vw, 64px); line-height: 0.98; margin-bottom: 14px; }
-  .chapter .num { font-size: 15px; color: var(--faint); font-weight: 700; letter-spacing: 0.2em; }
   .chapter ul { list-style: none; padding: 0; margin: 0; }
   .chapter li { padding: 10px 0 10px 28px; border-bottom: 1px solid var(--line); color: #cfd6e4; position: relative; font-size: 16.5px; line-height: 1.5; }
   .chapter li:last-child { border-bottom: 0; }
@@ -257,15 +264,18 @@
     body { font-size: 17px; }
     .wrap { padding: 0 16px; }
     .bar { padding: 12px 16px; }
-    .bar nav { display: none; }
+    .hero-copy { padding-left: 16px; padding-right: 16px; }
     .piece-grid, .chapter-grid, .chapter.flip .chapter-grid { grid-template-columns: 1fr; gap: 40px; }
     .chapter.flip .copy { order: 0; }
     .chapter, .duo-sec, .piece { padding: 80px 0; }
     .statement { padding: 80px 0 30px; }
+    .maker { padding-bottom: 80px; }
+    .note { grid-template-columns: 1fr; gap: 18px; padding: 24px; }
+    .note img { width: 72px; height: 72px; border-radius: 17px; }
     .fold-row { gap: 16px; }
     .dod { margin-top: 90px; }
     .hands { grid-template-columns: 1fr; gap: 16px; margin-top: 40px; }
-    .shots { grid-template-columns: 1fr; gap: 24px; margin-top: 40px; }
+    .hands.one { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -273,14 +283,7 @@
 
 <header class="bar" id="bar">
   <a class="brand" href="#top"><img src="img/icon.png" alt="">RAYS</a>
-  <nav>
-    <a href="#duo">iPhone Duo</a>
-    <a href="#import">Import</a>
-    <a href="#light">Light</a>
-    <a href="#render">Render</a>
-    <a href="#preview">Preview</a>
-    <a href="https://stevetalkowski.github.io/rays-support/">Support</a>
-  </nav>
+  <span class="by">by <a href="https://www.sketchbot.tv">Sketchbot Studios</a></span>
 </header>
 
 <section class="hero" id="top">
@@ -298,11 +301,24 @@
       <span class="price">$9.99 &middot; no subscription</span>
     </div>
   </div>
+  <p class="cap">Sketchbots, rendered in RAYS</p>
 </section>
 
 <section class="statement">
   <div class="wrap">
     <p class="reveal">The same kind of light simulation used by <span class="grad">film and product-visualization renderers,</span> running on your iPhone's <span class="grad">hardware ray tracing.</span></p>
+  </div>
+</section>
+
+<section class="maker">
+  <div class="wrap">
+    <div class="note reveal">
+      <img src="img/sketchbot-eye.jpg" alt="The Sketchbot eye, Sketchbot Studios' mark" width="256" height="256">
+      <div>
+        <p>As a computer graphics artist for more than 30 years, I've always loved the idea of creating on the go: real images, made wherever I happen to be. RAYS is the first app in a creative suite built on that philosophy.</p>
+        <p class="sig">Steve Talkowski, <a href="https://www.sketchbot.tv">Sketchbot Studios</a></p>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -333,14 +349,8 @@
           <img class="bezel" src="img/bezel-open.webp" alt="" width="1800" height="1308">
         </div>
       </div>
-      <div class="hands">
+      <div class="hands one">
         <img src="img/hand-night.jpg" alt="An iPhone Duo held in hand, showing RAYS with the Night Sky Duo model closed." loading="lazy" width="2000" height="1125">
-        <img src="img/hand-white.jpg" alt="An iPhone Duo held in hand, showing RAYS with the Star White Duo model open in landscape." loading="lazy" width="2000" height="1125">
-      </div>
-      <div class="shots">
-        <figure class="device"><img src="img/duo-white-open.webp" alt="RAYS: the Star White iPhone Duo model, open." loading="lazy" width="1800" height="1308"><figcaption>Star White, open</figcaption></figure>
-        <figure class="device"><img src="img/duo-white-landscape.webp" alt="RAYS: the Duo model in its Landscape pose, its screen facing the camera." loading="lazy" width="1800" height="1308"><figcaption>Landscape pose</figcaption></figure>
-        <figure class="device"><img src="img/duo-white-closed.webp" alt="RAYS: the Star White iPhone Duo model, closed." loading="lazy" width="1800" height="1308"><figcaption>Star White, closed</figcaption></figure>
       </div>
     </div>
   </div>
@@ -348,7 +358,7 @@
 
 <section class="piece">
   <div class="wrap piece-grid">
-    <figure class="frame-art reveal" id="art" style="margin:0">
+    <figure class="frame-art" id="art" style="margin:0">
       <img src="img/cornell-sketchbot.jpg" alt="Sketchbot, an orange one-eyed robot holding a pencil, standing in a Cornell box with a red left wall and green right wall, beside a small glass ball and a mirror ball, lit by one ceiling light." id="artImg" width="1000" height="1000">
       <div class="noise" id="noise"></div>
       <div class="hud" id="hud">1 / 128 spp</div>
@@ -368,7 +378,6 @@
 <section class="chapter import" id="import">
   <div class="wrap chapter-grid">
     <div class="copy reveal">
-      <p class="num">01</p>
       <h2>Import</h2>
       <ul>
         <li><strong>USDZ, USD, glTF, GLB and OBJ</strong>, from Files, Mail, Messages or AirDrop ("Open in RAYS").</li>
@@ -383,7 +392,6 @@
 <section class="chapter light flip" id="light">
   <div class="wrap chapter-grid">
     <div class="copy reveal">
-      <p class="num">02</p>
       <h2>Light</h2>
       <ul>
         <li><strong>Three studio HDRIs</strong> for real image-based light: turn them, set their exposure, show them behind the model.</li>
@@ -399,7 +407,6 @@
 <section class="chapter render" id="render">
   <div class="wrap chapter-grid">
     <div class="copy reveal">
-      <p class="num">03</p>
       <h2>Render</h2>
       <ul>
         <li><strong>Progressive path tracing</strong>: soft shadows, reflections, glass and bounce light.</li>
@@ -415,7 +422,6 @@
 <section class="chapter preview flip" id="preview">
   <div class="wrap chapter-grid">
     <div class="copy reveal">
-      <p class="num">04</p>
       <h2>Preview</h2>
       <ul>
         <li><strong>A fast real-time Preview</strong> for framing and arranging.</li>
@@ -430,7 +436,6 @@
 <section class="chapter scenes" id="scenes">
   <div class="wrap chapter-grid">
     <div class="copy reveal">
-      <p class="num">05</p>
       <h2>Scenes</h2>
       <ul>
         <li><strong>Save your scene</strong>, with every move, light, camera and material edit, as one file that opens in Quick Look, Blender and other USD apps.</li>
@@ -532,18 +537,25 @@
     };
     if (reduce) { show(cap); return; }
     show(1);
-    let started = false;
-    new IntersectionObserver((es, o) => {
-      if (!es[0].isIntersecting || started) return;
-      started = true; o.disconnect();
-      const t0 = performance.now(), dur = 4200;
+    // Starts only when the frame is mostly on screen and clear of the bottom edge (not while
+    // it's just peeking up from below), holds the noisy first samples a moment, and starts over
+    // if it's scrolled away before it finishes.
+    let raf = 0, done = false;
+    const run = () => {
+      const t0 = performance.now() + 500, dur = 5000;
       const step = t => {
-        const p = Math.min((t - t0) / dur, 1);
+        const p = Math.max(0, Math.min((t - t0) / dur, 1));
         show(Math.max(1, Math.round(cap * p * p)));
-        if (p < 1) requestAnimationFrame(step);
+        if (p < 1) raf = requestAnimationFrame(step); else done = true;
       };
-      requestAnimationFrame(step);
-    }, { threshold: 0.5 }).observe(document.getElementById('art'));
+      raf = requestAnimationFrame(step);
+    };
+    new IntersectionObserver(es => {
+      const e = es[0];
+      if (done) return;
+      if (e.isIntersecting) { if (!raf) run(); }
+      else { cancelAnimationFrame(raf); raf = 0; show(1); }
+    }, { threshold: 0.6, rootMargin: '0px 0px -20% 0px' }).observe(document.getElementById('art'));
   })();
 </script>
 </body>
