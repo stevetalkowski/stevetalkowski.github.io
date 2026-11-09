@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RAYS: A Pocket Path Tracer</title>
+<meta name="description" content="RAYS is a real path tracer for iPhone. Import a model, light it with an HDRI, hit Render, and watch a photoreal image come together in seconds. Designed first for iPhone Duo.">
+<meta property="og:title" content="RAYS: A Pocket Path Tracer">
+<meta property="og:description" content="Real path-traced light, right on your iPhone. Designed first for iPhone Duo.">
+<meta property="og:image" content="https://stevetalkowski.github.io/rays/img/crew.jpg">
+<meta name="theme-color" content="#05070c">
+<link rel="icon" href="img/icon.png">
+<link rel="apple-touch-icon" href="img/icon.png">
+<style>
+  :root {
+    --bg: #05070c;
+    --bg2: #0b0f18;
+    --fg: #f4f6fa;
+    --muted: #9aa3b5;
+    --faint: #5d6678;
+    --blue: #3a87fe;
+    --orange: #ff8a1f;
+    --red: #e8453c;
+    --green: #5fbf4a;
+    --line: rgba(255,255,255,0.09);
+    --font: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 18px/1.6 var(--font);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  img { display: block; max-width: 100%; height: auto; }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  h1, h2, h3 { font-family: var(--font); font-weight: 700; letter-spacing: -0.02em; margin: 0; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+  .eyebrow {
+    font-size: 13px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--blue); margin: 0 0 14px;
+  }
+
+  /* ---------- top bar ---------- */
+  .bar {
+    position: fixed; inset: 0 0 auto 0; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px;
+    background: linear-gradient(to bottom, rgba(5,7,12,0.85), rgba(5,7,12,0));
+    transition: background .3s;
+  }
+  .bar.solid { background: rgba(5,7,12,0.82); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+  .brand { display: flex; align-items: center; gap: 10px; color: var(--fg); font-weight: 700; letter-spacing: 0.08em; }
+  .brand img { width: 30px; height: 30px; border-radius: 7px; }
+  .bar nav a { color: var(--muted); font-size: 15px; margin-left: 22px; }
+  .bar nav a:hover { color: var(--fg); text-decoration: none; }
+
+  /* ---------- hero ---------- */
+  .hero {
+    position: relative; min-height: 100vh; min-height: 100svh;
+    display: flex; align-items: flex-end;
+    background: #2a6fe0 url(img/hero.jpg) center 30% / cover no-repeat;
+    overflow: hidden;
+  }
+  .hero::before {   /* light rays sweeping across */
+    content: ""; position: absolute; inset: -40%;
+    background: repeating-conic-gradient(from 200deg at 70% 0%,
+      rgba(255,255,255,0.0) 0deg, rgba(255,255,255,0.10) 3deg, rgba(255,255,255,0.0) 7deg, rgba(255,255,255,0) 14deg);
+    mix-blend-mode: soft-light;
+    animation: sweep 18s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+  @keyframes sweep { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
+  .hero::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(to top, var(--bg) 0%, rgba(5,7,12,0.55) 28%, rgba(5,7,12,0) 60%),
+                linear-gradient(to right, rgba(5,7,12,0.45), rgba(5,7,12,0) 55%);
+    pointer-events: none;
+  }
+  .hero-copy { position: relative; z-index: 2; padding-bottom: 9vh; }
+  .hero h1 { font-size: clamp(72px, 14vw, 180px); line-height: 0.9; letter-spacing: -0.03em; text-shadow: 0 6px 40px rgba(0,0,0,0.35); }
+  .hero .tag { font-size: clamp(22px, 3vw, 34px); font-weight: 700; margin: 10px 0 18px; }
+  .hero .lede { max-width: 560px; color: #dfe6f3; font-size: 19px; margin: 0 0 28px; }
+  .cta { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 24px; border-radius: 999px; font-weight: 700; font-size: 17px;
+    background: var(--fg); color: #05070c;
+  }
+  .btn:hover { text-decoration: none; transform: translateY(-1px); }
+  .btn svg { width: 20px; height: 20px; }
+  .btn.ghost { background: rgba(255,255,255,0.12); color: var(--fg); border: 1px solid rgba(255,255,255,0.25); backdrop-filter: blur(8px); }
+  .price { color: #dfe6f3; font-size: 15px; }
+
+  /* ---------- statement ---------- */
+  .statement { padding: 120px 0 60px; text-align: center; }
+  .statement p { font-size: clamp(26px, 3.6vw, 44px); line-height: 1.25; font-weight: 700; max-width: 980px; margin: 0 auto; letter-spacing: -0.015em; }
+  .statement .dim { color: var(--faint); }
+  .statement .hl { background: linear-gradient(90deg, var(--orange), #ffc04d); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  /* ---------- the Cornell piece ---------- */
+  .piece { padding: 60px 0 120px; }
+  .piece-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 64px; align-items: center; }
+  .frame-art {
+    position: relative; border-radius: 6px; overflow: hidden;
+    box-shadow: 0 40px 120px rgba(232,69,60,0.18), 0 40px 120px rgba(95,191,74,0.14), 0 0 0 1px var(--line);
+    aspect-ratio: 1 / 1; background: #111;
+  }
+  .frame-art img { width: 100%; height: 100%; object-fit: cover; transition: filter .15s linear; }
+  .noise {
+    position: absolute; inset: 0; pointer-events: none;
+    image-rendering: pixelated; background-size: 256px 256px;
+    mix-blend-mode: hard-light;
+  }
+  .hud {
+    position: absolute; left: 14px; top: 14px;
+    font: 12px/1.5 Menlo, ui-monospace, monospace; color: #fff;
+    background: rgba(0,0,0,0.55); padding: 8px 10px; border-radius: 8px;
+    backdrop-filter: blur(6px);
+  }
+  .hud b { color: #7cf08a; font-weight: 400; }
+  .piece h2 { font-size: clamp(30px, 3.4vw, 44px); line-height: 1.12; margin-bottom: 18px; }
+  .piece .title { font-style: italic; color: var(--fg); }
+  .piece p { color: var(--muted); }
+  .credit { font-size: 14px; color: var(--faint); margin-top: 20px; }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; padding: 0; list-style: none; }
+  .pills li { font-size: 14px; padding: 7px 13px; border-radius: 999px; border: 1px solid var(--line); color: #c9d1e0; background: var(--bg2); }
+
+  /* ---------- device frames ---------- */
+  .duo {
+    position: relative; border-radius: 26px; padding: 9px;
+    background: linear-gradient(145deg, #3a3f4a, #15181e 45%, #2b2f38);
+    box-shadow: 0 50px 100px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(255,255,255,0.08);
+  }
+  .duo img { border-radius: 18px; width: 100%; }
+  .duo::after {   /* glass sheen */
+    content: ""; position: absolute; inset: 9px; border-radius: 18px; pointer-events: none;
+    background: linear-gradient(115deg, rgba(255,255,255,0.10), rgba(255,255,255,0) 35%);
+  }
+  .duo.folded { border-radius: 30px; }
+
+  /* ---------- feature chapters ---------- */
+  .chapter { padding: 110px 0; border-top: 1px solid var(--line); position: relative; overflow: hidden; isolation: isolate; }
+  .chapter-grid { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 72px; align-items: center; }
+  .chapter.flip .chapter-grid { grid-template-columns: 1.15fr 0.85fr; }
+  .chapter.flip .copy { order: 2; }
+  .chapter h2 { font-size: clamp(40px, 5.2vw, 72px); line-height: 0.98; margin-bottom: 22px; }
+  .chapter .num { font-size: 15px; color: var(--faint); font-weight: 700; letter-spacing: 0.2em; }
+  .chapter ul { list-style: none; padding: 0; margin: 0; }
+  .chapter li { padding: 14px 0 14px 30px; border-bottom: 1px solid var(--line); color: #cfd6e4; position: relative; }
+  .chapter li:last-child { border-bottom: 0; }
+  .chapter li::before {
+    content: ""; position: absolute; left: 2px; top: 23px; width: 12px; height: 12px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff, var(--accent, var(--blue)) 55%, #000 120%);
+  }
+  .chapter li strong { color: var(--fg); }
+  .stack { position: relative; }
+  .stack .back { width: 78%; margin-left: auto; opacity: 0.95; }
+  .stack .front { width: 78%; margin-top: -32%; position: relative; }
+  .chapter.import  { --accent: var(--blue); }
+  .chapter.light   { --accent: #ffd34d; }
+  .chapter.render  { --accent: var(--orange); }
+  .chapter.preview { --accent: #b57bff; }
+  .chapter.scenes  { --accent: var(--green); }
+  .glow { position: absolute; width: 520px; height: 520px; border-radius: 50%; filter: blur(120px); opacity: 0.22; pointer-events: none; z-index: -1; }
+
+  /* ---------- folded or open ---------- */
+  .fold { padding: 120px 0; text-align: center; border-top: 1px solid var(--line); overflow: hidden; }
+  .fold h2 { font-size: clamp(40px, 5.6vw, 76px); line-height: 1; margin-bottom: 18px; }
+  .fold p.sub { color: var(--muted); max-width: 640px; margin: 0 auto 64px; }
+  .fold-row { display: flex; justify-content: center; align-items: flex-end; gap: 36px; }
+  .fold-row .duo.open { width: min(640px, 58%); }
+  .fold-row .duo.folded { width: min(250px, 22%); }
+
+  /* ---------- crew band ---------- */
+  .crew { position: relative; padding: 0; }
+  .crew img { width: 100%; max-height: 82vh; object-fit: cover; }
+  .crew figcaption {
+    position: absolute; left: 0; right: 0; bottom: 0; padding: 120px 24px 40px;
+    background: linear-gradient(to top, var(--bg), rgba(5,7,12,0));
+    text-align: center; font-size: clamp(24px, 3vw, 38px); font-weight: 700;
+  }
+  .crew figcaption span { display: block; font-size: 16px; font-weight: 400; color: var(--muted); margin-top: 8px; }
+
+  /* ---------- closing ---------- */
+  .closing { padding: 110px 0 60px; text-align: center; }
+  .closing img.icon { width: 112px; height: 112px; border-radius: 25px; margin: 0 auto 26px; box-shadow: 0 20px 60px rgba(58,135,254,0.35); }
+  .closing h2 { font-size: clamp(36px, 4.6vw, 60px); margin-bottom: 14px; }
+  .closing p { color: var(--muted); max-width: 620px; margin: 0 auto 30px; }
+  .closing .cta { justify-content: center; }
+  .req { margin: 56px auto 0; max-width: 720px; padding: 22px 26px; border-radius: 18px; background: var(--bg2); border: 1px solid var(--line); text-align: left; color: var(--muted); font-size: 16px; }
+  .req strong { color: var(--fg); }
+  footer { border-top: 1px solid var(--line); padding: 34px 0 46px; color: var(--faint); font-size: 14px; }
+  footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
+  footer a { color: var(--muted); margin-left: 20px; }
+
+  /* ---------- reveal on scroll ---------- */
+  .reveal { opacity: 0; transform: translateY(36px); transition: opacity .9s ease, transform .9s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .hero::before { animation: none; }
+    html { scroll-behavior: auto; }
+  }
+
+  /* ---------- small screens ---------- */
+  @media (max-width: 860px) {
+    body { font-size: 17px; }
+    .wrap { padding: 0 16px; }
+    .bar { padding: 12px 16px; }
+    .bar nav { display: none; }
+    .piece-grid, .chapter-grid, .chapter.flip .chapter-grid { grid-template-columns: 1fr; gap: 40px; }
+    .chapter.flip .copy { order: 0; }
+    .chapter, .fold, .piece { padding: 80px 0; }
+    .statement { padding: 80px 0 30px; }
+    .fold-row { gap: 14px; }
+    .fold-row .duo.open { width: 64%; }
+    .fold-row .duo.folded { width: 30%; }
+    .duo { border-radius: 16px; padding: 5px; }
+    .duo img { border-radius: 12px; }
+    .duo::after { inset: 5px; border-radius: 12px; }
+    footer a { margin: 0 20px 0 0; }
+  }
+</style>
+</head>
+<body>
+
+<header class="bar" id="bar">
+  <a class="brand" href="#top"><img src="img/icon.png" alt="">RAYS</a>
+  <nav>
+    <a href="#import">Import</a>
+    <a href="#light">Light</a>
+    <a href="#render">Render</a>
+    <a href="#preview">Preview</a>
+    <a href="https://stevetalkowski.github.io/rays-support/">Support</a>
+  </nav>
+</header>
+
+<section class="hero" id="top">
+  <div class="wrap hero-copy">
+    <h1>RAYS</h1>
+    <p class="tag">A Pocket Path Tracer</p>
+    <p class="lede">Bring your 3D models to life with real path-traced light, right on your iPhone. Open USDZ, glTF or OBJ, light it with an HDRI, and render a photoreal image in seconds.</p>
+    <div class="cta">
+      <!-- Replace href with the App Store link once RAYS is live. -->
+      <a class="btn" href="#get">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.7-3.18-1.73-1.35-.14-2.64.8-3.33.8-.69 0-1.74-.78-2.87-.76-1.47.02-2.83.86-3.59 2.18-1.53 2.66-.39 6.6 1.1 8.75.73 1.05 1.6 2.24 2.73 2.2 1.1-.05 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.07 2.65-2.13.84-1.22 1.18-2.4 1.2-2.46-.03-.01-2.27-.87-2.29-3.47zM14.2 6.13c.6-.73 1.01-1.75.9-2.76-.87.04-1.92.58-2.54 1.31-.56.64-1.05 1.68-.92 2.67.97.08 1.96-.49 2.56-1.22z"/></svg>
+        Coming soon to the App Store
+      </a>
+      <span class="price">$9.99 &middot; no subscription, no ads, no tracking</span>
+    </div>
+  </div>
+</section>
+
+<section class="statement">
+  <div class="wrap">
+    <p class="reveal">The same kind of light simulation used by <span class="dim">film and product-visualization renderers,</span> running on your iPhone's <span class="hl">hardware ray tracing.</span></p>
+  </div>
+</section>
+
+<section class="piece">
+  <div class="wrap piece-grid">
+    <figure class="frame-art reveal" id="art" style="margin:0">
+      <img src="img/cornell-sketchbot.jpg" alt="Sketchbot, an orange one-eyed robot holding a pencil, standing in a Cornell box with a red left wall and green right wall, beside a small glass ball and a mirror ball, lit by one ceiling light." id="artImg" width="1000" height="1000">
+      <div class="noise" id="noise"></div>
+      <div class="hud" id="hud">1 / 128 spp</div>
+    </figure>
+    <div class="reveal">
+      <p class="eyebrow">Rendered by RAYS</p>
+      <h2><span class="title">Sketchbot in a Cornell box, with a mirror ball and a glass ball under one overhead area light.</span></h2>
+      <p>Hit Render and the image comes together in front of you: soft shadows, reflections, glass and the colour bounce from every wall, refining with every sample. It's a progressive path tracer: one full light path for every pixel, every frame, until the noise is gone.</p>
+      <ul class="pills">
+        <li>Soft shadows</li><li>Mirror reflections</li><li>Refraction</li><li>Colour bleed</li><li>Denoiser</li>
+      </ul>
+      <p class="credit">The Cornell box: computer graphics' most famous test scene, built from Cornell's published measurements.</p>
+    </div>
+  </div>
+</section>
+
+<section class="chapter import" id="import">
+  <div class="glow" style="background:var(--blue); left:-180px; top:80px"></div>
+  <div class="wrap chapter-grid">
+    <div class="copy reveal">
+      <p class="num">01</p>
+      <h2>Import</h2>
+      <ul>
+        <li><strong>USDZ, USD, glTF, GLB and OBJ</strong>, from Files, Mail, Messages or AirDrop ("Open in RAYS").</li>
+        <li><strong>Materials, textures, variants and lights</strong> come in with the model. Your original file is never changed.</li>
+        <li><strong>Several models in one scene</strong>: move, turn and scale them with an on-screen gizmo.</li>
+      </ul>
+    </div>
+    <div class="reveal">
+      <div class="duo"><img src="img/outliner.jpg" alt="RAYS on iPhone Duo: the Scene panel listing Sketchbot's hierarchy, cameras and materials beside the rendered character." loading="lazy" width="1600" height="1125"></div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter light flip" id="light">
+  <div class="glow" style="background:#ffd34d; right:-160px; top:120px"></div>
+  <div class="wrap chapter-grid">
+    <div class="copy reveal">
+      <p class="num">02</p>
+      <h2>Light</h2>
+      <ul>
+        <li><strong>Three studio HDRIs</strong> light your model with real image-based light. Turn them, set their exposure, or show them behind the model.</li>
+        <li><strong>Sun, bulb, spot and area lights</strong>, placed and aimed right in the view.</li>
+        <li><strong>Shadow catcher</strong>: an invisible floor that catches soft shadows and reflections. <strong>Ground projection</strong> lays the HDRI's floor under your model.</li>
+        <li><strong>Backdrop colours with Bounce light</strong>: the set colour lights your model back, like a coloured studio cyc.</li>
+      </ul>
+    </div>
+    <div class="stack reveal">
+      <div class="duo back"><img src="img/hdri.jpg" alt="The HDRI menu: Show as Background, Illuminate Scene, Shadow Catcher and Ground Projection, over Sketchbot in a sunlit loft." loading="lazy" width="1600" height="1125"></div>
+      <div class="duo front"><img src="img/area-light.jpg" alt="An area light selected above Sketchbot, with its size shown and the light's settings panel open." loading="lazy" width="1600" height="1125"></div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter render" id="render">
+  <div class="glow" style="background:var(--orange); left:-160px; top:60px"></div>
+  <div class="wrap chapter-grid">
+    <div class="copy reveal">
+      <p class="num">03</p>
+      <h2>Render</h2>
+      <ul>
+        <li><strong>Progressive path tracing</strong>: soft shadows, reflections, glass and bounce light, refining with every sample.</li>
+        <li><strong>Physically based materials</strong>: metal, glossy and rough surfaces, clear coat, clear and frosted glass.</li>
+        <li><strong>A denoiser</strong> for clean images faster, and <strong>depth of field</strong> with real camera settings and Tap to Focus.</li>
+        <li><strong>Save to Photos</strong> as PNG or HDR photos, plus EXR for compositing.</li>
+      </ul>
+    </div>
+    <div class="stack reveal">
+      <div class="duo back"><img src="img/spheres.jpg" alt="Eight material spheres (car paint, chrome, gold, glass, copper and more) path traced on a polished concrete floor." loading="lazy" width="1600" height="1125"></div>
+      <div class="duo front"><img src="img/settings.jpg" alt="Render settings and the HUD: 128 of 128 samples done in 11.5 seconds, with Samples, Bounces and Resolution controls." loading="lazy" width="1600" height="1125"></div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter preview flip" id="preview">
+  <div class="glow" style="background:#b57bff; right:-160px; top:100px"></div>
+  <div class="wrap chapter-grid">
+    <div class="copy reveal">
+      <p class="num">04</p>
+      <h2>Preview</h2>
+      <ul>
+        <li><strong>A fast real-time Preview</strong> for framing and arranging.</li>
+        <li><strong>Preview Effects</strong>: ambient occlusion, curvature, depth of field, bloom, tone mapping (Neutral, AgX, ACES), colour balance, vignette, grain and more.</li>
+        <li><strong>Saved cameras</strong> with real focal lengths, including a Default camera to get back to the opening view.</li>
+      </ul>
+    </div>
+    <div class="stack reveal">
+      <div class="duo back"><img src="img/camera.jpg" alt="The Camera panel with focal length presets from 24 to 135 mm and a depth of field switch." loading="lazy" width="1600" height="1125"></div>
+      <div class="duo front"><img src="img/effects.jpg" alt="Preview Effects: ambient occlusion, scanlines and grain on Sketchbot, with the effects panel open." loading="lazy" width="1600" height="1125"></div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter scenes" id="scenes">
+  <div class="glow" style="background:var(--green); left:-160px; top:80px"></div>
+  <div class="wrap chapter-grid">
+    <div class="copy reveal">
+      <p class="num">05</p>
+      <h2>Scenes</h2>
+      <ul>
+        <li><strong>Save your scene</strong>, with every move, light, camera and material edit, as one file that opens in Quick Look, Blender and other USD apps.</li>
+        <li><strong>Sample scenes to start from</strong>: Sketchbot, Material Spheres and two classic Cornell boxes.</li>
+      </ul>
+    </div>
+    <div class="reveal">
+      <div class="duo"><img src="img/cornell-1985.jpg" alt="The classic 1985 Cornell box sample, path traced in RAYS: a tall and a short block between red and green walls." loading="lazy" width="1600" height="1125"></div>
+    </div>
+  </div>
+</section>
+
+<section class="fold">
+  <div class="wrap">
+    <p class="eyebrow reveal">Designed first for iPhone Duo</p>
+    <h2 class="reveal">Folded or open.</h2>
+    <p class="sub reveal">Open it up for a wide canvas with the panels beside your render. Fold it closed and the whole studio is still in one hand. And at home on every iPhone with hardware ray tracing.</p>
+    <div class="fold-row reveal">
+      <div class="duo folded"><img src="img/folded-effects.jpg" alt="RAYS on the folded iPhone Duo's outer screen, Preview Effects on Sketchbot." loading="lazy" width="756" height="1100"></div>
+      <div class="duo open"><img src="img/hdri.jpg" alt="RAYS on the open iPhone Duo." loading="lazy" width="1600" height="1125"></div>
+      <div class="duo folded"><img src="img/folded-hdri.jpg" alt="RAYS on the folded iPhone Duo's outer screen, Sketchbot lit by an HDRI with depth of field." loading="lazy" width="756" height="1100"></div>
+    </div>
+  </div>
+</section>
+
+<figure class="crew" style="margin:0">
+  <img src="img/crew.jpg" alt="Six Sketchbot characters in orange, lime, magenta, red, blue and charcoal, each holding an art tool, reflected in a glossy blue floor." loading="lazy" width="2000" height="1333">
+  <figcaption>Hit Render. Get a phenomenal image.<span>Rendered in RAYS.</span></figcaption>
+</figure>
+
+<section class="closing" id="get">
+  <div class="wrap">
+    <img class="icon reveal" src="img/icon.png" alt="RAYS app icon">
+    <h2 class="reveal">Your pocket render farm.</h2>
+    <p class="reveal">One price, up front. No account, no subscription, no ads. Nothing leaves your iPhone unless you send it.</p>
+    <div class="cta reveal">
+      <a class="btn" href="#get">Coming soon to the App Store</a>
+      <a class="btn ghost" href="https://stevetalkowski.github.io/rays-support/">Support</a>
+    </div>
+    <div class="req reveal">
+      <strong>Requirements.</strong> Rendering needs an iPhone with hardware ray tracing: iPhone 15 Pro, iPhone 16 or later. On other iPhones RAYS works in Preview only.
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>&copy; 2026 Sketchbot Studios, Inc.</span>
+    <span>
+      <a href="https://stevetalkowski.github.io/rays-support/">Support</a>
+      <a href="https://stevetalkowski.github.io/rays-support/privacy.html">Privacy</a>
+      <a href="mailto:steve@sketchbot.tv">Contact</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+  // Top bar turns solid once past the hero.
+  const bar = document.getElementById('bar');
+  const onScroll = () => bar.classList.toggle('solid', window.scrollY > window.innerHeight * 0.6);
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Fade sections in as they arrive.
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  }), { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // The Cornell piece "renders" when it scrolls into view: noise falls off as 1/sqrt(samples),
+  // like a real progressive render, and the HUD counts up to 128.
+  (() => {
+    const noise = document.getElementById('noise'), hud = document.getElementById('hud'), img = document.getElementById('artImg');
+    const cap = 128;
+    const c = document.createElement('canvas'); c.width = c.height = 128;
+    const g = c.getContext('2d'), d = g.createImageData(128, 128);
+    for (let i = 0; i < d.data.length; i += 4) {
+      const fire = Math.random() < 0.012;   // the odd firefly
+      const v = fire ? 255 : Math.random() * 255;
+      d.data[i] = fire ? 255 : v * (0.6 + Math.random() * 0.4);
+      d.data[i + 1] = fire ? 255 : v * (0.6 + Math.random() * 0.4);
+      d.data[i + 2] = fire ? 255 : v * (0.6 + Math.random() * 0.4);
+      d.data[i + 3] = 255;
+    }
+    g.putImageData(d, 0, 0);
+    noise.style.backgroundImage = `url(${c.toDataURL()})`;
+    const show = spp => {
+      const k = 1 / Math.sqrt(spp);
+      noise.style.opacity = spp >= cap ? 0 : Math.min(0.9, k * 1.1).toFixed(3);
+      img.style.filter = spp >= cap ? 'none' : `brightness(${0.75 + 0.25 * (1 - k)})`;
+      noise.style.backgroundPosition = `${Math.random() * 256 | 0}px ${Math.random() * 256 | 0}px`;
+      hud.innerHTML = spp >= cap ? `${cap} / ${cap} spp <b>&#10003; done</b>` : `${spp} / ${cap} spp`;
+    };
+    if (reduce) { show(cap); return; }
+    show(1);
+    let started = false;
+    new IntersectionObserver((es, o) => {
+      if (!es[0].isIntersecting || started) return;
+      started = true; o.disconnect();
+      const t0 = performance.now(), dur = 4200;
+      const step = t => {
+        const p = Math.min((t - t0) / dur, 1);
+        show(Math.max(1, Math.round(cap * p * p)));
+        if (p < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }, { threshold: 0.5 }).observe(document.getElementById('art'));
+  })();
+</script>
+</body>
+</html>
