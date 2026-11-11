@@ -199,6 +199,8 @@
   .chapter.render  { --accent: #ff9a2e; }
   .chapter.preview { --accent: #c08cff; }
   .chapter.scenes  { --accent: #6fdc55; }
+  .chapter.composite { --accent: #2fd6c4; }
+  .chapter .copy .lead { color: var(--muted, #9aa3b5); margin: 0 0 14px; }
 
   /* ---------- crew band ---------- */
   .crew { position: relative; padding: 0; }
@@ -418,7 +420,22 @@
   </div>
 </section>
 
-<section class="chapter preview flip" id="preview">
+<section class="chapter composite flip" id="composite">
+  <div class="wrap chapter-grid">
+    <div class="copy reveal">
+      <h2>Composite</h2>
+      <p class="lead">A quick-and-dirty composite, the classic studio trick for showing off a new character in any environment, now in your pocket.</p>
+      <ul>
+        <li><strong>All-HDRI</strong>: turn on Show as background, Ground projection and the Shadow catcher at once. The HDRI becomes the room, its floor lies flat under your model, and the model's shadow lands on it.</li>
+        <li><strong>Your own photo</strong>: pick a background picture from Photos or Files, drag, pinch and twist it into place, and lock it. The shadow catcher sets your model on its floor, and the HDRI lights it to match.</li>
+        <li><strong>Make it sit</strong>: camera Roll matches a photo that wasn't shot level, depth of field blurs the picture with the scene, and film grain ties render and photo together.</li>
+      </ul>
+    </div>
+    <figure class="device"><img src="img/composite.webp" alt="RAYS on iPhone Duo: Sketchbot standing in a backplate photo of a brick loft, with the Environment panel open on Backdrop Image, Lock, Follows depth of field and Picture distance." loading="lazy" width="1800" height="1308"></figure>
+  </div>
+</section>
+
+<section class="chapter preview" id="preview">
   <div class="wrap chapter-grid">
     <div class="copy reveal">
       <h2>Preview</h2>
@@ -432,7 +449,7 @@
   </div>
 </section>
 
-<section class="chapter scenes" id="scenes">
+<section class="chapter scenes flip" id="scenes">
   <div class="wrap chapter-grid">
     <div class="copy reveal">
       <h2>Scenes</h2>
