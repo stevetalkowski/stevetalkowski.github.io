@@ -132,6 +132,16 @@
   .fold-row figcaption, .shots figcaption { font-size: 14px; color: var(--faint); margin-top: 14px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; }
 
   .dod { margin-top: 140px; }
+
+  /* ---------- iPad and iPhone (1.1, Steve 2026-11-11) ---------- */
+  /* Same layout as the Duo section, an orange wash instead of blue. The row's 2.66 : 1 split makes the
+     landscape iPad and the portrait iPhone stand the same height. */
+  .pair-sec {
+    background:
+      radial-gradient(80% 620px at 50% 700px,
+        rgba(255,138,31,0.42) 0%, rgba(255,138,31,0.20) 38%, rgba(255,138,31,0.06) 70%, rgba(255,138,31,0) 100%);
+  }
+  .pair-row { grid-template-columns: 2.66fr 1fr; }
   .dod h2 { font-size: clamp(54px, 9vw, 130px); letter-spacing: -0.035em; }
   .dod .video { max-width: 980px; margin: 0 auto; }
   .hands { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 72px 0 0; }
@@ -352,6 +362,24 @@
       <div class="hands one">
         <img src="img/hand-night.jpg" alt="An iPhone Duo held in hand, showing RAYS with the Night Sky Duo model closed." loading="lazy" width="2000" height="1125">
       </div>
+    </div>
+  </div>
+</section>
+
+<section class="duo-sec pair-sec" id="ipad" style="--accent:#ff8a1f">
+  <div class="wrap">
+    <p class="eyebrow reveal">Now on iPad</p>
+    <h2 class="reveal"><span class="grad">Share scenes between iPad and iPhone.</span></h2>
+    <p class="sub reveal">RAYS runs natively on iPad, with the Scene list, your render and the panels side by side. Save a scene on your iPhone, AirDrop it to your iPad and pick up right where you left off: the models, lights, cameras and HDRI all travel in one file.</p>
+    <div class="fold-row pair-row">
+      <figure class="device">
+        <img src="img/ipad-pro.webp" alt="RAYS on a 13-inch iPad Pro in landscape: the Scene list on the left, a yellow and red traffic-light robot in the middle with its head selected and the turn handles showing, and the Environment panel on the right." loading="lazy" width="1800" height="1380">
+        <figcaption>iPad Pro</figcaption>
+      </figure>
+      <figure class="device">
+        <img src="img/iphone-pro-max.webp" alt="RAYS on an iPhone 17 Pro Max: Sketchbot in a workshop, with the Environment panel open below." loading="lazy" width="780" height="1592">
+        <figcaption>iPhone 17 Pro Max</figcaption>
+      </figure>
     </div>
   </div>
 </section>
